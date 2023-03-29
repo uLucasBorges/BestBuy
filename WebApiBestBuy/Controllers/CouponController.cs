@@ -9,7 +9,8 @@ namespace WebApiBestBuy.Controllers
     {
         private readonly ICouponRepository couponRepository;
         private readonly INotificationContext _notificationContext;
-        public CouponController(ICouponRepository couponRepository, INotificationContext notificationContext) : base(notificationContext)
+
+        public CouponController(ICouponRepository couponRepository, INotificationContext _notificationContext) : base (_notificationContext)
         {
             this.couponRepository = couponRepository;
         }

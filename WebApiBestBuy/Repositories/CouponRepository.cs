@@ -72,12 +72,11 @@ namespace BestBuy.Infra.Repositories
                 var result = (await connection.QueryAsync<Coupon>(query, new { CouponCode = couponCode})).FirstOrDefault();
                 if (result != null)
                 {
-                    _notificationContext.AddNotification(200, "Cupom Encontrado");
-
                     return new ResultVM { Coupon = result, Success = true };
                 }
 
-                _notificationContext.AddNotification(404, "cupom inexistente");
+                _notificationContext.AddNotification(404, "Ticket inexistente");
+
                 return new ResultVM { Success = false };
 
             }

@@ -26,11 +26,14 @@ namespace BestBuy.Infra.Repositories
 
             if (cartExists)
             {
-                var coupon = await _couponRepository.ExistsCouponOrCartHaveCoupon(couponCode, null);
-                if (coupon.Coupon.CouponCode == "")
-                await _couponRepository.ApplyCoupon(cartId, couponCode);
+                var coupon = await _couponRepository.ExistsCoupon(couponCode);
 
-                return true;
+                if (coupon.Success)
+                {
+                    await _couponRepository.ApplyCoupon(cartId, couponCode);
+
+                    return true;
+                }
             }
 
             return false;
@@ -89,13 +92,13 @@ namespace BestBuy.Infra.Repositories
 
                 IEnumerable<Product> productsInCart = await connection.QueryAsync<Product>(query, new { cartId = CartId });
 
-                var existsCoupon = await _couponRepository.ExistsCouponOrCartHaveCoupon("", CartId);
+                var existsCoupon = await _couponRepository.CartHaveCoupon(CartId);
                
                 connection.Dispose();
 
                 var controle = 0.0;
 
-                if (existsCoupon != null)
+                if (existsCoupon.Success)
                 {
                     foreach(Product obj in productsInCart)
                     {
