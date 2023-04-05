@@ -3,10 +3,8 @@ using FluentValidation.Results;
 
 namespace BestBuy.Entities;
 
-public abstract class Base
+public abstract class EntityBase
 {
-
-
     internal List<string> _errors;
     public IReadOnlyCollection<string> Erros => _errors;
 

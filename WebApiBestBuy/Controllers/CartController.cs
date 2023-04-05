@@ -1,13 +1,16 @@
 ﻿using BestBuy.Core.Interfaces;
-using WebApiBestBuy.Models;
 using Microsoft.AspNetCore.Mvc;
+using BestBuy.Core.Notification;
 
 namespace WebApiBestBuy.Controllers
 {
-    public class CartController : Controller
+    public class CartController : BaseController
     {
         private readonly ICartRepository cartRepository;
-        public CartController(ICartRepository cartRepository)
+        private readonly INotificationContext notificationContext;
+
+
+        public CartController(ICartRepository cartRepository, INotificationContext notificationContext) : base(notificationContext)
         {
             this.cartRepository = cartRepository;
         }
@@ -15,7 +18,7 @@ namespace WebApiBestBuy.Controllers
         [HttpDelete("cart/Remove-Cart")]
         public async Task<IActionResult> DeleteProductsInCart(int productId)
         {
-            var cartId = CreateCartId();
+            var cartId = base.CreateCartId();
 
             var exists = await cartRepository.ExistCart(cartId);
 
@@ -40,7 +43,7 @@ namespace WebApiBestBuy.Controllers
         [HttpGet("cart/Get-Products")]
         public async Task<IActionResult> GetProductsInCaty()
         {
-            var cartId = CreateCartId();
+            var cartId = base.CreateCartId();
 
             var exists = await cartRepository.ExistCart(cartId);
 
@@ -50,24 +53,6 @@ namespace WebApiBestBuy.Controllers
             var products = await cartRepository.GetProductsByCart(cartId);
 
             return Ok(products);
-        }
-
-
-        private string CreateCartId()
-        {
-            var cart = Request.Cookies["CartId"];
-
-            if (string.IsNullOrEmpty(cart))
-            {
-                var id = Guid.NewGuid();
-              
-
-                Response.Cookies.Append("CartID", id.ToString());
-                return id.ToString();
-            }
-
-            return cart;
-
         }
     }
 }

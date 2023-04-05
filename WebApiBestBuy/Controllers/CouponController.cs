@@ -15,7 +15,7 @@ namespace WebApiBestBuy.Controllers
             this.couponRepository = couponRepository;
         }
 
-        [HttpPost("/CreateCoupon")]
+        [HttpPost("/Create")]
         public async Task<IActionResult> CreateCoupon(string couponCode, double amount)
         {
             var existsCoupon = await couponRepository.ExistsCoupon(couponCode);
@@ -30,7 +30,7 @@ namespace WebApiBestBuy.Controllers
             return BadRequest("Cupon já existente");
         }
 
-        [HttpDelete("/DeleteCoupon")]
+        [HttpDelete("/Delete")]
         public async Task<IActionResult> DeleteCoupon(string code) 
         {
 
@@ -46,12 +46,12 @@ namespace WebApiBestBuy.Controllers
         
         }
 
-        [HttpPost("/ApplyCoupon")]
+        [HttpPost("/Apply")]
         public async Task<IActionResult> ApplyCoupon(string couponCode) {
 
-            var cartId = Request.Cookies["CartId"];
+            var cartId = base.CreateCartId();
 
-        if(!string.IsNullOrEmpty(couponCode) && !string.IsNullOrEmpty(cartId))
+            if (!string.IsNullOrEmpty(couponCode) && !string.IsNullOrEmpty(cartId))
             {
 
                 var couponExists = await couponRepository.ExistsCoupon(couponCode);
@@ -71,6 +71,14 @@ namespace WebApiBestBuy.Controllers
             return Response();
         }
 
+        [HttpDelete("/Remove")]
+        public async Task<IActionResult> RemoveCoupon()
+        {
+            var result = await couponRepository.RemoveCoupon(base.CreateCartId());
+            if (result)
+                return Ok("Cupom removido com sucesso");
 
+            return NotFound("O carrinho não possui cupons");
+        }
     }
 }

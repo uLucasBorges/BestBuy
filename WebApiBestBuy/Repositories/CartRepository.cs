@@ -90,7 +90,7 @@ namespace BestBuy.Infra.Repositories
 
                 var query = "SELECT C.Id, P.Name , C.Quantity , C.ValueTotal \r\n  FROM CART C \r\n  INNER JOIN PRODUCTS P ON P.Id = C.ProductId \r\n  WHERE C.ID = @CartId";
 
-                IEnumerable<Product> productsInCart = await connection.QueryAsync<Product>(query, new { cartId = CartId });
+                IEnumerable<ProductViewModel> productsInCart = await connection.QueryAsync<ProductViewModel>(query, new { cartId = CartId });
 
                 var existsCoupon = await _couponRepository.CartHaveCoupon(CartId);
                
@@ -100,7 +100,7 @@ namespace BestBuy.Infra.Repositories
 
                 if (existsCoupon.Success)
                 {
-                    foreach(Product obj in productsInCart)
+                    foreach(ProductViewModel obj in productsInCart)
                     {
                         controle += obj.ValueTotal;
                     }

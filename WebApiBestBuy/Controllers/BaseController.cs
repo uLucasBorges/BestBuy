@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApiBestBuy.Controllers
 {
-    public class BaseController : Controller
+    public class BaseController : ControllerBase
     {
         protected readonly INotificationContext _notificationContext;
         protected BaseController(INotificationContext notificationContext)
@@ -26,6 +26,24 @@ namespace WebApiBestBuy.Controllers
             var notifications = _notificationContext.GetNotifications();
 
             return StatusCode(_notificationContext.Code, notifications);
+        }
+
+
+        protected string CreateCartId()
+        {
+            var cart = HttpContext.Request.Cookies["CartId"];
+
+            if (string.IsNullOrEmpty(cart))
+            {
+                var id = Guid.NewGuid();
+
+
+                HttpContext.Response.Cookies.Append("CartId", id.ToString());
+                return id.ToString();
+            }
+
+            return cart;
+
         }
     }
 }
