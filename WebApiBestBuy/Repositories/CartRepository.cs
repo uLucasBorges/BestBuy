@@ -4,6 +4,7 @@ using WebApiBestBuy.Models;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using WebApiBestBuy.ViewModel;
+using BestBuy.Core.Notification;
 
 namespace BestBuy.Infra.Repositories
 {
@@ -11,12 +12,14 @@ namespace BestBuy.Infra.Repositories
     {
         private readonly IConfiguration _config;
         private readonly ICouponRepository _couponRepository;
+        private readonly INotificationContext _notificationContext;
         private readonly string stringConexao;
 
 
-        public CartRepository(IConfiguration config, ICouponRepository couponRepository)
+        public CartRepository(IConfiguration config, ICouponRepository couponRepository, INotificationContext notificationContext)
         {
             stringConexao = config.GetSection("ConnectionStrings").GetSection("Default").Value;
+            _notificationContext = notificationContext;
             _couponRepository = couponRepository;
         }
 
@@ -44,22 +47,37 @@ namespace BestBuy.Infra.Repositories
         public async Task<bool> AddProductCart(string CartId, int ProductId, int AmountInsert)
         {
 
-                using (var connection = new SqlConnection(stringConexao))
+            using (var connection = new SqlConnection(stringConexao))
+            {
+
+                var cart = await ExistCart(CartId);
+
+                if (!cart)
                 {
+                    _notificationContext.AddNotification(404, "Carrinho não encontrado");
+                    return false;
+                }
+
                 connection.Open();
 
                 var query = "exec InsertOrUpdateCart \r\n@cartId = @CartId,\r\n@productId = @ProductId,\r\n@amountInsert = @AmountInsert";
-                    
-                 connection.Execute(query, new {
-                     cartId = CartId,
-                     productId = ProductId,
-                     amountInsert = AmountInsert
-                 });
+
+                var result = connection.Execute(query, new
+                {
+                    cartId = CartId,
+                    productId = ProductId,
+                    amountInsert = AmountInsert
+                });
 
                 connection.Dispose();
 
-                return true;
+                if (result == -1) { 
+                _notificationContext.AddNotification(404, "Produto não encontrado");
+                return false;
                 }
+
+                return true;
+                }  
             }
 
 
@@ -105,14 +123,17 @@ namespace BestBuy.Infra.Repositories
                         controle += obj.ValueTotal;
                     }
 
-                    controle -= existsCoupon.Coupon.DiscountAmount;
+                    controle -= existsCoupon.data.DiscountAmount;
+
+                    if (controle < 0)
+                        controle = 0;
                 }
 
 
                 return new CartVM
                 {
                     Products = productsInCart,
-                    DiscountAmount = existsCoupon.Coupon.DiscountAmount,
+                    DiscountAmount = existsCoupon.data.DiscountAmount,
                     Price = controle 
                 };
 
@@ -124,10 +145,16 @@ namespace BestBuy.Infra.Repositories
         {
             using (var connection = new SqlConnection(stringConexao))
             {
-                var query = "delete from cart where Id = @CartID";
-                var exec = await connection.ExecuteAsync(query, new { Id = CartID });
+                var cart = await ExistCart(CartID);
+                if (cart)
+                {
+                    var query = "delete from cart where Id = @CartID";
+                     await connection.ExecuteAsync(query, new { Id = CartID });
+                    return true;
+                }
 
-                return true;
+                _notificationContext.AddNotification(404, "Não há produtos no carrinho");
+                return false;
 
             }
         }

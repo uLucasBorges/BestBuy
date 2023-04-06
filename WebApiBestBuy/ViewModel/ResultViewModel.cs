@@ -4,7 +4,7 @@ namespace WebApiBestBuy.ViewModel
 {
     public class ResultViewModel
     {
-        public Coupon? Coupon { get; set; }
+        public dynamic? data { get; set; }
         public bool Success { get; set; }
     }
 }

@@ -7,16 +7,19 @@ namespace WebApiBestBuy.Models
 {
     public class Product : EntityBase
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; }
         public double Price { get; set; }
-
         public string Description { get; set; }
         public int CategoryId { get; set; }
-
         public string ImageUrl { get; set; }
 
-        public Product(string id, string name, double price, string description, int categoryId, string imageUrl)
+        public Product() {
+            _errors = new List<string>();
+        }
+
+
+        public Product(int id, string name, double price, string description, int categoryId, string imageUrl)
         {
             Id = id;
             Name = name;
@@ -25,6 +28,7 @@ namespace WebApiBestBuy.Models
             CategoryId = categoryId;
             ImageUrl = imageUrl;
             _errors = new List<string>();
+            Validate();
 
         }
 

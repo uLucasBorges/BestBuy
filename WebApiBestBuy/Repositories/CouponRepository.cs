@@ -36,7 +36,7 @@ namespace BestBuy.Infra.Repositories
                     }
 
                     var query = "INSERT CartHeaders (UserId,CouponCode) values (@cartId, @couponCode)";
-                    await connection.ExecuteAsync(query, new { cartId = CartId, couponCode = coupon.Coupon.CouponCode });
+                    await connection.ExecuteAsync(query, new { cartId = CartId, couponCode = coupon.data.CouponCode });
 
                     _notificationContext.AddNotification(200, "Cupom Aplicado");
                     return true;
@@ -81,7 +81,7 @@ namespace BestBuy.Infra.Repositories
                 var result = (await connection.QueryAsync<Coupon>(query, new { CouponCode = couponCode})).FirstOrDefault();
                 if (result != null)
                 {
-                    return new ResultViewModel { Coupon = result, Success = true };
+                    return new ResultViewModel { data = result, Success = true };
                 }
 
                 _notificationContext.AddNotification(404, "Ticket inexistente");
@@ -106,10 +106,10 @@ namespace BestBuy.Infra.Repositories
                 {
                     _notificationContext.AddNotification(200, "Carrinho já possui Cupom");
 
-                    return new ResultViewModel { Coupon = result, Success = true };
+                    return new ResultViewModel { data = result, Success = true };
                 }
 
-                return new ResultViewModel { Success = false, Coupon = new Coupon() };
+                return new ResultViewModel { Success = false, data = new Coupon() };
 
             }
         }
