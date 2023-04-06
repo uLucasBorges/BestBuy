@@ -2,6 +2,7 @@
 using BestBuy.Core.Notification;
 using Dapper;
 using Microsoft.Data.SqlClient;
+using WebApiBestBuy.Data;
 using WebApiBestBuy.Models;
 using WebApiBestBuy.ViewModel;
 
@@ -9,21 +10,18 @@ namespace BestBuy.Infra.Repositories
 {
     public class ProductRepository : IProductRepository
     {
-        private readonly IConfiguration _config;
+        private readonly AppDbContext _context;
         private readonly INotificationContext _notificationContext;
-        private readonly string stringConexao;
 
-
-        public ProductRepository(IConfiguration config, INotificationContext notificationContext)
+        public ProductRepository(AppDbContext context, INotificationContext notificationContext)
         {
+            _context = context;
             _notificationContext = notificationContext;
-            stringConexao = config.GetSection("ConnectionStrings").GetSection("Default").Value;
         }
-
 
         public async Task<Product> CreateProduct(Product product)
         {
-            using (var connection = new SqlConnection(stringConexao))
+            using (var connection = _context.Connect())
             {
                var query = "INSERT INTO Products (Name,Price,Description,CategoryId,ImageURL) VALUES (@name,@price,@description,@categoryId,@imageURL)";
                var result =  await connection.ExecuteAsync(query,
@@ -45,7 +43,7 @@ namespace BestBuy.Infra.Repositories
 
         public async Task<ResultViewModel> GetProduct(int Id)
         {
-            using(var connection = new SqlConnection(stringConexao))
+            using (var connection = _context.Connect())
             {
                 var query = "SELECT * FROM Products WHERE id = @Id";
                 var result = (await connection.QueryAsync<Product>(query, new { id = Id })).FirstOrDefault() ;
@@ -64,7 +62,7 @@ namespace BestBuy.Infra.Repositories
 
         public async Task<ResultViewModel> GetProducts()
         {
-            using (var connection = new SqlConnection(stringConexao))
+            using (var connection = _context.Connect())
             {
                 var query = "SELECT * FROM Products";
                 var result = (await connection.QueryAsync<Product>(query)).ToList();
@@ -87,7 +85,7 @@ namespace BestBuy.Infra.Repositories
 
             if(existsProduct.Success)
             {
-                using(var connection = new SqlConnection(stringConexao))
+                using (var connection = _context.Connect())
                 {
                     var query = @"UPDATE Products
                        SET

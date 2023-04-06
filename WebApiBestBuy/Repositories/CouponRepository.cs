@@ -2,6 +2,7 @@
 using BestBuy.Core.Notification;
 using Dapper;
 using Microsoft.Data.SqlClient;
+using WebApiBestBuy.Data;
 using WebApiBestBuy.Models;
 using WebApiBestBuy.ViewModel;
 
@@ -9,23 +10,19 @@ namespace BestBuy.Infra.Repositories
 {
     public class CouponRepository : ICouponRepository
     {
+        private readonly AppDbContext _context;
         private readonly INotificationContext _notificationContext;
-        private readonly IConfiguration _config;
-        private readonly string stringConexao;
 
-        public CouponRepository(IConfiguration config, INotificationContext notificationContext)
+        public CouponRepository(AppDbContext context, INotificationContext notificationContext)
         {
-            _config = config;
+            _context = context;
             _notificationContext = notificationContext;
-            stringConexao = _config.GetSection("ConnectionStrings").GetSection("Default").Value;
         }
-
-  
 
         public async Task<bool> ApplyCoupon(string CartId, string CouponCode)
         {
-            using (var connection = new SqlConnection(stringConexao))
-            {               
+            using (var connection = _context.Connect())
+            {
                 if (!string.IsNullOrEmpty(CartId) && !string.IsNullOrWhiteSpace(CouponCode))
                 {
                     var coupon = await ExistsCoupon(CouponCode);
@@ -48,7 +45,7 @@ namespace BestBuy.Infra.Repositories
 
         public async Task<Coupon> CreateCoupon(string couponCode, double discountAmount)
         {
-            using(var connection = new SqlConnection(stringConexao))
+            using (var connection = _context.Connect())
             {
                 var query = "INSERT COUPON (COUPONCODE,DiscountAmount) VALUES (@couponCode,@discountAmount)";
 
@@ -60,7 +57,7 @@ namespace BestBuy.Infra.Repositories
 
         public async Task<bool> DeleteCoupon(string couponCode)
         {
-            using (var connection = new SqlConnection(stringConexao))
+            using (var connection = _context.Connect())
             {
                 var query = "DELETE FROM Coupon WHERE CouponCode = @couponCode";
 
@@ -72,7 +69,7 @@ namespace BestBuy.Infra.Repositories
 
         public async Task<ResultViewModel> ExistsCoupon(string? couponCode)
         {
-            using(var connection = new SqlConnection(stringConexao))
+            using (var connection = _context.Connect())
             {
                 connection.Open();
                 var query = "SELECT CouponCode, DiscountAmount FROM Coupon WHERE CouponCode = @couponCode";
@@ -94,7 +91,7 @@ namespace BestBuy.Infra.Repositories
         
         public async Task<ResultViewModel> CartHaveCoupon(string userid)
         {
-            using(var connection = new SqlConnection(stringConexao))
+            using (var connection = _context.Connect())
             {
                 connection.Open();
                 
@@ -119,7 +116,7 @@ namespace BestBuy.Infra.Repositories
             if (String.IsNullOrEmpty(userid))
                 return false;
 
-            using (var connection = new SqlConnection(stringConexao))
+            using (var connection = _context.Connect())
             {
                 var query = "delete from CartHeaders  where UserId = @userid";
                 var result = await connection.ExecuteAsync(query, new
