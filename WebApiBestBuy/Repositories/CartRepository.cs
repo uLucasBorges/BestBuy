@@ -141,19 +141,34 @@ namespace BestBuy.Infra.Repositories
             }
         }
 
-        public async Task<bool> RemoveProductCart(int ProductId, string CartID)
+        public async Task<bool> RemoveProductCart(int ProductId, int AmountInsert, string CartID)
         {
             using (var connection = _context.Connect())
             {
                 var cart = await ExistCart(CartID);
                 if (cart)
                 {
-                    var query = "delete from cart where Id = @Id";
-                     await connection.ExecuteAsync(query, new { Id = CartID });
+                    var query = "exec RemoveOrDeleteCart \r\n@cartId = @CartId,\r\n@productId = @ProductId,\r\n@amountInsert = @AmountInsert";
+
+                    var result = connection.Execute(query, new
+                    {
+                        cartId = CartID,
+                        productId = ProductId,
+                        amountInsert = AmountInsert
+                    });
+
+                    connection.Dispose();
+
+                    if (result == -1)
+                    {
+                        _notificationContext.AddNotification(404, "Produto não encontrado");
+                        return false;
+                    }
+
                     return true;
                 }
 
-                _notificationContext.AddNotification(404, "Não há produtos no carrinho");
+                _notificationContext.AddNotification(404, "Carrinho inexistente");
                 return false;
 
             }

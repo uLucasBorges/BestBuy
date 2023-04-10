@@ -17,33 +17,51 @@ namespace WebApiBestBuy.Controllers
         }
 
         [HttpPost("Create")]
-        public async Task<IActionResult> CreateProduct([FromBody] Product product)
+        public async Task<IActionResult> CreateProduct(Product product)
         {
             if (product.IsValid)
             {
-                var result = await _productRepository.CreateProduct(product);
-                if (result != null)
-                    return StatusCode(201);
+                 await _productRepository.CreateProduct(product); 
             }
-
-            return BadRequest(product.Erros);
+            return Response();
         }
         
-        [HttpGet("Products")]
-        public async Task<IActionResult> GetProducts()
+        [HttpGet("List")]
+        public async Task<IActionResult> GetProducts() 
+        {  
+           var products =  await _productRepository.GetProducts();
+            return Response(products);
+        }
+
+        [HttpGet("/By/{Id}")]
+        public async Task<IActionResult> GetProduct(int id)
         {
-            var aluno = await _productRepository.GetProduct(1);
-            var alunos = await _productRepository.GetProducts();
-
-            return Ok();
+            await _productRepository.GetProduct(id);
+            return Response();
         }
-        
-        [HttpPut("Products")]
+
+
+        [HttpPut("Update")]
         public async Task<IActionResult> UpdateProducts(Product product)
         {
-          await _productRepository.UpdateProduct(product);
+            if (product.IsValid)
+            {
+               var result = await _productRepository.UpdateProduct(product);
+                return Response(result);
 
-            return Ok();
+            }
+             
+            return BadRequest(product.Erros);
+            
+        }
+
+
+        [HttpDelete("Delete")]
+        public async Task<IActionResult> DeleteProducts(int id)
+        {
+           var result = await _productRepository.DeleteProduct(id);
+            
+           return Ok(Response(result));
         }
     }
 }

@@ -15,15 +15,15 @@ namespace WebApiBestBuy.Controllers
             this.cartRepository = cartRepository;
         }
 
-        [HttpDelete("cart/Remove-Cart")]
-        public async Task<IActionResult> DeleteProductsInCart(int productId)
+        [HttpDelete("cart/Remove-Product")]
+        public async Task<IActionResult> DeleteProductsInCart(int productId, int quantityAmount)
         {
             var cartId = base.CreateCartId();
 
             var exists = await cartRepository.ExistCart(cartId);
 
             if(exists)
-            await cartRepository.RemoveProductCart(productId, cartId);
+            await cartRepository.RemoveProductCart(productId, quantityAmount, cartId);
 
             return Ok();
         }
@@ -40,7 +40,7 @@ namespace WebApiBestBuy.Controllers
         }
 
 
-        [HttpGet("cart/Get-Products")]
+        [HttpGet("cart/Products")]
         public async Task<IActionResult> GetProductsInCaty()
         {
             var cartId = base.CreateCartId();

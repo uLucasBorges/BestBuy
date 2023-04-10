@@ -9,7 +9,7 @@ namespace BestBuy.Core.Interfaces
 
         public Task<Product> CreateProduct(Product product);
         public Task<bool> DeleteProduct(int ProducId);
-        public Task<ResultViewModel> GetProduct(int ProducId);
+        public Task<ProductResultVM> GetProduct(int ProducId);
         public Task<ResultViewModel> GetProducts();
         public Task<ResultViewModel> UpdateProduct(Product product);
      

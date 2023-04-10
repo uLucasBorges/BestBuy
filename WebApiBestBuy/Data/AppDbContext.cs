@@ -14,7 +14,6 @@ namespace WebApiBestBuy.Data
             this.configuration = configuration;
         }
 
-
         public IDbConnection Connect()
         {
             var connectionString = configuration.GetConnectionString("Default");

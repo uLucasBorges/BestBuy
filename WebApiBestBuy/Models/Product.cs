@@ -16,6 +16,7 @@ namespace WebApiBestBuy.Models
 
         public Product() {
             _errors = new List<string>();
+
         }
 
 

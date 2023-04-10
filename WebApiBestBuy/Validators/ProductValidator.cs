@@ -23,7 +23,7 @@ namespace WebApiBestBuy.Validators
 
             RuleFor(x => x.CategoryId)
                 .NotEqual(0)
-                .WithMessage("Você deve possuir uma categoria")
+                .WithMessage("A Categoria do produto não pode ser 0")
 
                 .NotEmpty()
                 .WithMessage("Você deve possuir uma categoria")
