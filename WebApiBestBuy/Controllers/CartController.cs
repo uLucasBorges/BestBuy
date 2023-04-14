@@ -25,7 +25,7 @@ namespace WebApiBestBuy.Controllers
             if(exists)
             await cartRepository.RemoveProductCart(productId, quantityAmount, cartId);
 
-            return Ok();
+            return Response();
         }
 
 

@@ -33,11 +33,11 @@ namespace WebApiBestBuy.Controllers
             return Response(products);
         }
 
-        [HttpGet("/By/{Id}")]
+        [HttpGet("/By/{id}")]
         public async Task<IActionResult> GetProduct(int id)
         {
-            await _productRepository.GetProduct(id);
-            return Response();
+            var result = await _productRepository.GetProduct(id);
+            return Response(result);
         }
 
 
@@ -61,7 +61,7 @@ namespace WebApiBestBuy.Controllers
         {
            var result = await _productRepository.DeleteProduct(id);
             
-           return Ok(Response(result));
+           return Response();
         }
     }
 }

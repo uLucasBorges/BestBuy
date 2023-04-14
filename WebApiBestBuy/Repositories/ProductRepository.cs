@@ -74,17 +74,17 @@ namespace BestBuy.Infra.Repositories
                 var query = "SELECT * FROM Products WHERE id = @Id";
                 var result = (await connection.QueryAsync<Product>(query, new { id = Id })).FirstOrDefault() ;
 
-                if (result.IsValid) {
-
-                    return new ProductResultVM
+                    if(result != null)
+    
+                     return new ProductResultVM
                     {
                         data = result,
                         Success = true
                     };
 
-                    }
 
-                return new ProductResultVM();
+                   _notificationContext.AddNotification(404, "Produto não encontrado");
+                   return new ProductResultVM();
             }
         }
 
@@ -103,6 +103,7 @@ namespace BestBuy.Infra.Repositories
                         Success = true
                     };
 
+                _notificationContext.AddNotification(404, "Não há produtos");
                 return new ResultViewModel();
             }
         }
