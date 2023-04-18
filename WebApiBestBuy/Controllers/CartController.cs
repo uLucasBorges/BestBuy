@@ -1,8 +1,8 @@
 ﻿using BestBuy.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using BestBuy.Core.Notification;
+using WebApiBestBuy.Domain.Notifications;
 
-namespace WebApiBestBuy.Controllers
+namespace WebApiBestBuy.Api.Controllers
 {
     public class CartController : BaseController
     {

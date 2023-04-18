@@ -3,7 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33403.182
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApiBestBuy", "WebApiBestBuy\WebApiBestBuy.csproj", "{8F5A2AD8-9687-459D-902A-B93D78963ADB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApiBestBuy", "WebApiBestBuy\WebApiBestBuy.csproj", "{8F5A2AD8-9687-459D-902A-B93D78963ADB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApiBestBuy.Infra", "WebApiBestBuy.Infra\WebApiBestBuy.Infra.csproj", "{EE17227B-F104-4502-8045-B4177F458526}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApiBestBuy.Domain", "WebApiBestBuy.Domain\WebApiBestBuy.Domain.csproj", "{582A809E-AE25-4B03-AB68-6E467F2EE54D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApiBestBuy.Test", "WebApiBestBuy.Test\WebApiBestBuy.Test.csproj", "{45F9284A-BCFF-49DC-A976-7313622A9A8D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +21,18 @@ Global
 		{8F5A2AD8-9687-459D-902A-B93D78963ADB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8F5A2AD8-9687-459D-902A-B93D78963ADB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8F5A2AD8-9687-459D-902A-B93D78963ADB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE17227B-F104-4502-8045-B4177F458526}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE17227B-F104-4502-8045-B4177F458526}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE17227B-F104-4502-8045-B4177F458526}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE17227B-F104-4502-8045-B4177F458526}.Release|Any CPU.Build.0 = Release|Any CPU
+		{582A809E-AE25-4B03-AB68-6E467F2EE54D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{582A809E-AE25-4B03-AB68-6E467F2EE54D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{582A809E-AE25-4B03-AB68-6E467F2EE54D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{582A809E-AE25-4B03-AB68-6E467F2EE54D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45F9284A-BCFF-49DC-A976-7313622A9A8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45F9284A-BCFF-49DC-A976-7313622A9A8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45F9284A-BCFF-49DC-A976-7313622A9A8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45F9284A-BCFF-49DC-A976-7313622A9A8D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

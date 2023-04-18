@@ -1,8 +1,6 @@
-﻿using BestBuy.Core.Interfaces;
-using BestBuy.Core.Notification;
-using Microsoft.AspNetCore.Mvc;
+﻿
 
-namespace WebApiBestBuy.Controllers
+namespace WebApiBestBuy.Api.Controllers
 {
     [Route("[Controller]")]
     public class CouponController : BaseController

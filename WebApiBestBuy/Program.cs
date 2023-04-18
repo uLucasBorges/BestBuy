@@ -1,4 +1,4 @@
-using BestBuy.Api.ExtensiosDI;
+using WebApiBestBuy.Api.ExtensionServices;
 
 var builder = WebApplication.CreateBuilder(args);
 

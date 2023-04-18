@@ -1,7 +1,7 @@
-﻿using BestBuy.Core.Notification;
+﻿using WebApiBestBuy.Domain.Notifications;
 using Microsoft.AspNetCore.Mvc;
 
-namespace WebApiBestBuy.Controllers
+namespace WebApiBestBuy.Api.Controllers
 {
     public class BaseController : ControllerBase
     {

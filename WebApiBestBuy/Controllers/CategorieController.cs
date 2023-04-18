@@ -1,9 +1,9 @@
 ﻿using BestBuy.Core.Interfaces;
-using BestBuy.Core.Notification;
+using WebApiBestBuy.Domain.Notifications;
 using Microsoft.AspNetCore.Mvc;
 using WebApiBestBuy.Models;
 
-namespace WebApiBestBuy.Controllers
+namespace WebApiBestBuy.Api.Controllers
 {
     [Route("[Controller]")]
     public class CategorieController : BaseController

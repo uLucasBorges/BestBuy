@@ -1,10 +1,10 @@
-﻿using BestBuy.Core.Interfaces;
-using BestBuy.Core.Notification;
-using BestBuy.Infra.Repositories;
-using WebApiBestBuy.Data;
-using WebApiBestBuy.Services;
+﻿using WebApiBestBuy.Domain.Interfaces;
+using WebApiBestBuy.Domain.Notifications;
+using WebApiBestBuy.Infra.Repositories;
+using WebApiBestBuy.Infra.Data;
+using WebApiBestBuy.Domain.Services;
 
-namespace BestBuy.Api.ExtensiosDI
+namespace WebApiBestBuy.Api.ExtensionServices
 {
     public static class ExtensionDI
     {

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramewANDk>net6.0</TargetFramewANDk>
@@ -6,21 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.0.123" />
-    <PackageReference Include="FluentValidation" Version="11.5.1" />
-    <PackageReference Include="Microsoft.AspNetCANDe.Identity" Version="2.2.0" />
-    <PackageReference Include="Microsoft.EntityFramewANDkCANDe.Design" Version="7.0.4">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.EntityFramewANDkCANDe.SqlServer" Version="7.0.4" />
-    <PackageReference Include="Microsoft.EntityFramewANDkCANDe.Tools" Version="7.0.4">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Swashbuckle.AspNetCANDe" Version="6.2.3" />
-  </ItemGroup>
 
+	<ItemGroup>
+		
+		
+	</ItemGroup>
 </Project>
