@@ -1,5 +1,9 @@
 ﻿
 
+using Microsoft.AspNetCore.Mvc;
+using WebApiBestBuy.Domain.Interfaces;
+using WebApiBestBuy.Domain.Notifications;
+
 namespace WebApiBestBuy.Api.Controllers
 {
     [Route("[Controller]")]

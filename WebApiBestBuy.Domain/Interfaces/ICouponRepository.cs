@@ -1,8 +1,8 @@
-﻿using WebApiBestBuy.Models;
-using WebApiBestBuy.ViewModel;
+﻿using WebApiBestBuy.Domain.Models;
+using WebApiBestBuy.Domain.ViewModel;
 
-namespace WebApiBestBuy.Domain.Interfaces
-{
+namespace WebApiBestBuy.Domain.Interfaces;
+
     public interface ICouponRepository
     {
         public Task<Coupon> CreateCoupon(string couponCode, double Amount);
@@ -14,4 +14,4 @@ namespace WebApiBestBuy.Domain.Interfaces
 
 
     }
-}
+

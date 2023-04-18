@@ -1,7 +1,6 @@
-﻿namespace WebApiBestBuy.Domain.Models
+﻿namespace WebApiBestBuy.Domain.Models;
+
+public abstract class Base
 {
-    public abstract class Base
-    {
-        public int Id { get; set; }
-    }
+    public int Id { get; set; }
 }

@@ -4,28 +4,36 @@ using WebApiBestBuy.Infra.Data;
 using WebApiBestBuy.Domain.Models;
 using WebApiBestBuy.Domain.ViewModel;
 using WebApiBestBuy.Domain.Notifications;
+using Microsoft.Extensions.Options;
+using Microsoft.Data.SqlClient;
 
-namespace BestBuy.Infra.Repositories
-{
-    public class CategorieRepository : ICategorieRepository
+namespace WebApiBestBuy.Infra.Repositories;
+
+
+public class CategorieRepository : ICategorieRepository
     {
-        private readonly AppDbContext _context;
+        private readonly string ConnectionStringEscrita;
+
         private readonly INotificationContext _notificationContext;
 
-        public CategorieRepository(AppDbContext context, INotificationContext notificationContext)
+        public CategorieRepository(IOptions<DatabaseConfig> config , INotificationContext notificationContext)
         {
-            _context = context;
+            ConnectionStringEscrita = config.Value.Clearsale_Write;
             _notificationContext = notificationContext;
         }
 
         public async Task<Categorie> CreateCategory(Categorie categorie)
         {
-            using (var connection = _context.Connect())
+            using (var connection =  new SqlConnection(ConnectionStringEscrita))
             {
-                var query = "INSERT INTO [dbo].[CategoriasAprendiz] (CategoriaNome, Descricao) VALUES (@name, @descricao)";
+              connection.Open();
+
+            var query = "INSERT INTO [dbo].[CategoriasAprendiz] (CategoriaNome, Descricao) VALUES (@name, @descricao)";
                 var result = await connection.ExecuteAsync(query, new { name = categorie.Name, descricao = categorie.Descricao });
 
-                if (result == -1)
+            connection.Dispose();
+
+            if (result == -1)
                     _notificationContext.AddNotification(400, "Erro ao criar a categoria");
 
                 else
@@ -37,12 +45,13 @@ namespace BestBuy.Infra.Repositories
 
         public async Task<ResultViewModel> GetCategorie(int Id)
         {
-            using (var connection = _context.Connect())
+            using (var connection =  new SqlConnection(ConnectionStringEscrita))
             {
                 var query = "SELECT *  FROM [clearsale].[dbo].[CategoriasAprendiz]\r\n  WHERE CategoriaId = @Id";
                 var result = (await connection.QueryAsync<Categorie>(query, new { id = Id })).FirstOrDefault();
+                connection.Dispose();
 
-                if (result != null)
+            if (result != null)
 
                     return new ResultViewModel
                     {
@@ -67,7 +76,7 @@ namespace BestBuy.Infra.Repositories
             }
             try
             {
-                using (var connection = _context.Connect())
+                using (var connection =  new SqlConnection(ConnectionStringEscrita))
                 {
                     var query = "DELETE FROM [dbo].[CategoriasAprendiz]\r\n      WHERE CategoriaId =  @id";
 
@@ -75,8 +84,10 @@ namespace BestBuy.Infra.Repositories
                     {
                         Id = id
                     });
+                connection.Dispose();
 
-                    return true;
+
+                return true;
                 }
             } catch (Exception ex)
             {
@@ -85,4 +96,4 @@ namespace BestBuy.Infra.Repositories
             }
         }
     }
-}
+

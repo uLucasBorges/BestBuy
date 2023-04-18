@@ -1,10 +1,9 @@
 ﻿using WebApiBestBuy.Domain.Models;
 
-namespace WebApiBestBuy.Domain.ViewModel
+namespace WebApiBestBuy.Domain.ViewModel;
+
+public class ProductResultVM
 {
-    public class ProductResultVM
-    {
-        public Product? data { get; set; }
-        public bool Success { get; set; }
-    }
+    public Product? data { get; set; }
+    public bool Success { get; set; }
 }

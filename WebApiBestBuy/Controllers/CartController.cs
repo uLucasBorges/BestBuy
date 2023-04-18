@@ -1,5 +1,5 @@
-﻿using BestBuy.Core.Interfaces;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using WebApiBestBuy.Domain.Interfaces;
 using WebApiBestBuy.Domain.Notifications;
 
 namespace WebApiBestBuy.Api.Controllers

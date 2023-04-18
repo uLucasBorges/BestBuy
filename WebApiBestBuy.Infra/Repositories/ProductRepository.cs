@@ -1,43 +1,50 @@
 ﻿using WebApiBestBuy.Domain.Interfaces;
-using WebApiBestBuy.Domain.Notification;
+using WebApiBestBuy.Domain.Notifications;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using WebApiBestBuy.Infra.Data;
-using WebApiBestBuy..Domain.Models;
+using WebApiBestBuy.Domain.Models;
 using WebApiBestBuy.Domain.ViewModel;
+using Microsoft.Extensions.Options;
 
-namespace BestBuy.Infra.Repositories
-{
+namespace WebApiBestBuy.Infra.Repositories;
+
     public class ProductRepository : IProductRepository
     {
-        private readonly AppDbContext _context;
+        private string ConnectionStringEscrita { get; }
         private readonly INotificationContext _notificationContext;
 
-        public ProductRepository(AppDbContext context, INotificationContext notificationContext)
+
+        public ProductRepository(AppDbContext context,IOptions<DatabaseConfig> config, INotificationContext notificationContext)
         {
-            _context = context;
+            ConnectionStringEscrita = config.Value.Clearsale_Write;
             _notificationContext = notificationContext;
         }
 
         public async Task<Product> CreateProduct(Product product)
         {
-            using (var connection = _context.Connect())
-            {
-               var query = "INSERT INTO Products (Name,Price,Description,CategoryId,ImageURL) VALUES (@name,@price,@description,@categoryId,@imageURL)";
-               var result =  await connection.ExecuteAsync(query,
-                   new {name = product.Name,
-                       price = product.Price,
-                       description = product.Description,
-                       categoryId = product.CategoryId, 
-                       imageurl = product.ImageUrl });
+        using (var connection = new SqlConnection(ConnectionStringEscrita))
+        {
+            var query = "INSERT INTO Products (Name,Price,Description,CategoryId,ImageURL) VALUES (@name,@price,@description,@categoryId,@imageURL)";
+            var result = await connection.ExecuteAsync(query,
+                new
+                {
+                    name = product.Name,
+                    price = product.Price,
+                    description = product.Description,
+                    categoryId = product.CategoryId,
+                    imageurl = product.ImageUrl
+                });
 
-                if (result == -1)
-                    _notificationContext.AddNotification(400, "Erro ao criar o produto");
+            connection.Dispose();
 
-                else
-                    _notificationContext.AddNotification(201, "Produto criado com sucesso!");
+            if (result == -1)
+                _notificationContext.AddNotification(400, "Erro ao criar o produto");
 
-            }   
+            else
+                _notificationContext.AddNotification(201, "Produto criado com sucesso!");
+
+        }   
 
             return product;
 
@@ -53,7 +60,7 @@ namespace BestBuy.Infra.Repositories
                 return false;
             }
 
-            using (var connection = _context.Connect())
+            using (var connection =  new SqlConnection(ConnectionStringEscrita))
             {
                 var query = "DELETE FROM [dbo].[Products]  WHERE Id = @id";
                
@@ -62,19 +69,24 @@ namespace BestBuy.Infra.Repositories
                     Id = id
                 });
 
-                return true;
+            connection.Dispose();
+
+
+            return true;
             }
              
         }
 
         public async Task<ProductResultVM> GetProduct(int Id)
         {
-            using (var connection = _context.Connect())
+            using (var connection =  new SqlConnection(ConnectionStringEscrita))
             {
                 var query = "SELECT * FROM Products WHERE id = @Id";
                 var result = (await connection.QueryAsync<Product>(query, new { id = Id })).FirstOrDefault() ;
 
-                    if(result != null)
+            connection.Dispose();
+
+            if (result != null)
     
                      return new ProductResultVM
                     {
@@ -90,12 +102,13 @@ namespace BestBuy.Infra.Repositories
 
         public async Task<ResultViewModel> GetProducts()
         {
-            using (var connection = _context.Connect())
+            using (var connection =  new SqlConnection(ConnectionStringEscrita))
             {
                 var query = "SELECT * FROM Products";
                 var result = (await connection.QueryAsync<Product>(query)).ToList();
+                connection.Dispose();
 
-                if (result.Any())
+            if (result.Any())
 
                     return new ResultViewModel
                     {
@@ -114,7 +127,7 @@ namespace BestBuy.Infra.Repositories
 
             if(existsProduct.Success)
             {
-                using (var connection = _context.Connect())
+                using (var connection =  new SqlConnection(ConnectionStringEscrita))
                 {
                     var query = @"UPDATE Products
                        SET
@@ -135,8 +148,9 @@ namespace BestBuy.Infra.Repositories
                         imageUrl = product.ImageUrl ?? existsProduct.data.ImageUrl
 
                     }) ;;
+                connection.Dispose();
 
-                    if (result == -1)
+                if (result == -1)
                     {
                         _notificationContext.AddNotification(400, "não foi possivel atualizar o produto");
                         return new ResultViewModel { Success = false, data = product };
@@ -152,4 +166,4 @@ namespace BestBuy.Infra.Repositories
             
         }
     }
-}
+

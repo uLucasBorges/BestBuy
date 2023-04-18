@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace WebApiBestBuy.Domain.Entities;

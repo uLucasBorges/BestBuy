@@ -1,24 +1,25 @@
 ﻿using System.Data;
-using BestBuy.Domain.Interfaces;
+using WebApiBestBuy.Domain.Interfaces;
 using WebApiBestBuy.Domain.Models;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using WebApiBestBuy.Domain.ViewModel;
-using BestBuy.Core.Notification;
+using WebApiBestBuy.Domain.Notifications;
 using WebApiBestBuy.Infra.Data;
+using Microsoft.Extensions.Options;
 
-namespace BestBuy.Infra.Repositories
+namespace WebApiBestBuy.Infra.Repositories
 {
     public class CartRepository : ICartRepository
     {
-        private readonly AppDbContext _context;
+        private string   ConnectionStringEscrita { get; }
         private readonly ICouponRepository _couponRepository;
         private readonly INotificationContext _notificationContext;
 
 
-        public CartRepository(AppDbContext context ,ICouponRepository couponRepository, INotificationContext notificationContext)
+        public CartRepository(IOptions<DatabaseConfig> config ,ICouponRepository couponRepository, INotificationContext notificationContext)
         {
-            _context = context;
+            ConnectionStringEscrita = config.Value.Clearsale_Write;
             _notificationContext = notificationContext;
             _couponRepository = couponRepository;
         }
@@ -47,8 +48,9 @@ namespace BestBuy.Infra.Repositories
         public async Task<bool> AddProductCart(string CartId, int ProductId, int AmountInsert)
         {
 
-            using (var connection = _context.Connect())
+            using (var connection =  new SqlConnection(ConnectionStringEscrita))
             {
+                connection.Open();
 
                 var cart = await ExistCart(CartId);
 
@@ -83,7 +85,7 @@ namespace BestBuy.Infra.Repositories
 
         public async Task<bool> ExistCart(string cartID)
         {
-            using (var connection = _context.Connect())
+            using (var connection =  new SqlConnection(ConnectionStringEscrita))
             {
                 connection.Open();
 
@@ -102,7 +104,7 @@ namespace BestBuy.Infra.Repositories
 
         public async Task<CartVM> GetProductsByCart(string CartId)
         {
-            using (var connection = _context.Connect())
+            using (var connection =  new SqlConnection(ConnectionStringEscrita))
             {
                 connection.Open();
 
@@ -143,8 +145,9 @@ namespace BestBuy.Infra.Repositories
 
         public async Task<bool> RemoveProductCart(int ProductId, int AmountInsert, string CartID)
         {
-            using (var connection = _context.Connect())
+            using (var connection =  new SqlConnection(ConnectionStringEscrita))
             {
+                connection.Open();
                 var cart = await ExistCart(CartID);
                 if (cart)
                 {
