@@ -3,9 +3,11 @@ using WebApiBestBuy.Domain.Notifications;
 using WebApiBestBuy.Infra.Repositories;
 using WebApiBestBuy.Infra.Data;
 using WebApiBestBuy.Domain.Services;
-using Microsoft.AspNetCore.Identity;
 using WebApiBestBuy.Infra;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
+using Microsoft.AspNetCore.Identity;
+using WebApiBestBuy.Domain.Models;
 
 namespace WebApiBestBuy.Api.ExtensionServices
 {
@@ -16,12 +18,23 @@ namespace WebApiBestBuy.Api.ExtensionServices
             Services.Configure<DatabaseConfig>(configuration.GetSection("ConnectionStrings"));
 
             Services.AddDbContext<AppDbContext>(x => x.UseSqlServer(configuration["ConnectionStrings:ConnectionStringEscrita"]));
-            Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
+
+
+            Services.AddScoped<IUserService, UserService>();
             Services.AddScoped<INotificationContext, NotificationContext>();
             Services.AddScoped<IProductRepository, ProductRepository>();
             Services.AddScoped<ICartRepository, CartRepository>();
             Services.AddScoped<ICategorieRepository, CategorieRepository>();
             Services.AddScoped<ICouponRepository, CouponRepository>();
+
+
+            var autoMapperConfig = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<UserAccount, IdentityUser>().ReverseMap();
+               
+            });
+
+            Services.AddSingleton(autoMapperConfig.CreateMapper());
 
             return Services;
         }

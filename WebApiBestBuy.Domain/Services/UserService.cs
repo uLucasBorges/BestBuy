@@ -3,30 +3,33 @@ using System.Security.Claims;
 using System.Text;
 using WebApiBestBuy.Domain.Notifications;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNet.Identity.EntityFramework;
 using WebApiBestBuy.Domain.ViewModel;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using AutoMapper;
 
 namespace WebApiBestBuy.Domain.Services;
 
 public class UserService : IUserService
 {
+    private readonly INotificationContext _notificationContext;
     private readonly UserManager<IdentityUser> _userManager;
     private readonly SignInManager<IdentityUser> _signInManager;
-    private readonly RoleManager<IdentityRole> _role;
     private readonly IConfiguration _configuration;
-    private readonly INotificationContext _notificationContext;
+    private readonly RoleManager<IdentityRole> _role;
+    private readonly IMapper _mapper;
 
-    public UserService(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, RoleManager<IdentityRole> role, IConfiguration configuration, INotificationContext notificationContext)
+    public UserService(UserManager<IdentityUser> userManager,
+        SignInManager<IdentityUser> signInManager, IConfiguration configuration, RoleManager<IdentityRole> role, IMapper mapper, INotificationContext notificationContext)
     {
         _userManager = userManager;
         _signInManager = signInManager;
-        _role = role;
         _configuration = configuration;
+        _role = role;
+        _mapper = mapper;
         _notificationContext = notificationContext;
-    }
 
+    }
     public async Task<ResultViewModel> CreateAccount(IdentityUser user)
     {
        

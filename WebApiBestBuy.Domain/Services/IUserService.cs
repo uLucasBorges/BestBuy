@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNet.Identity.EntityFramework;
+﻿
+using Microsoft.AspNetCore.Identity;
+
 using WebApiBestBuy.Domain.ViewModel;
 
 namespace WebApiBestBuy.Domain.Services;
