@@ -8,7 +8,6 @@ namespace WebApiBestBuy.Infra
 {
     public class DatabaseConfig
     {
-        public string Clearsale_Read { get; set; }
-        public string Clearsale_Write { get; set; }
+        public string ConnectionStringEscrita { get; set; }
     }
 }

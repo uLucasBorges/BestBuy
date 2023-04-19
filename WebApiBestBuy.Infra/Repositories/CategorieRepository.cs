@@ -1,6 +1,5 @@
 ﻿using WebApiBestBuy.Domain.Interfaces;
 using Dapper;
-using WebApiBestBuy.Infra.Data;
 using WebApiBestBuy.Domain.Models;
 using WebApiBestBuy.Domain.ViewModel;
 using WebApiBestBuy.Domain.Notifications;
@@ -18,7 +17,7 @@ public class CategorieRepository : ICategorieRepository
 
         public CategorieRepository(IOptions<DatabaseConfig> config , INotificationContext notificationContext)
         {
-            ConnectionStringEscrita = config.Value.Clearsale_Write;
+            ConnectionStringEscrita = config.Value.ConnectionStringEscrita;
             _notificationContext = notificationContext;
         }
 

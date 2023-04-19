@@ -17,7 +17,7 @@ namespace WebApiBestBuy.Infra.Repositories;
 
         public ProductRepository(AppDbContext context,IOptions<DatabaseConfig> config, INotificationContext notificationContext)
         {
-            ConnectionStringEscrita = config.Value.Clearsale_Write;
+            ConnectionStringEscrita = config.Value.ConnectionStringEscrita;
             _notificationContext = notificationContext;
         }
 

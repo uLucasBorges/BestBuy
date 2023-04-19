@@ -16,7 +16,7 @@ namespace WebApiBestBuy.Infra.Repositories;
 
         public CouponRepository(IOptions<DatabaseConfig> config, INotificationContext notificationContext)
         {
-            ConnectionStringEscrita = config.Value.Clearsale_Write;
+            ConnectionStringEscrita = config.Value.ConnectionStringEscrita;
             _notificationContext = notificationContext;
         }
 

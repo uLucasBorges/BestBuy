@@ -19,7 +19,7 @@ namespace WebApiBestBuy.Infra.Repositories
 
         public CartRepository(IOptions<DatabaseConfig> config ,ICouponRepository couponRepository, INotificationContext notificationContext)
         {
-            ConnectionStringEscrita = config.Value.Clearsale_Write;
+            ConnectionStringEscrita = config.Value.ConnectionStringEscrita;
             _notificationContext = notificationContext;
             _couponRepository = couponRepository;
         }
