@@ -7,6 +7,9 @@ using WebApiBestBuy.Domain.ViewModel;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using AutoMapper;
+using WebApiBestBuy.Domain.Models;
+using System.Text.Unicode;
+using System;
 
 namespace WebApiBestBuy.Domain.Services;
 
@@ -30,44 +33,72 @@ public class UserService : IUserService
         _notificationContext = notificationContext;
 
     }
-    public async Task<ResultViewModel> CreateAccount(IdentityUser user)
+    public async Task<Register> CreateAccount(UserAccount user)
     {
-       
-        var userExists = _userManager.Users.Where(x => x.Email == user.Email).FirstOrDefault();
+
+        var mapped = _mapper.Map<IdentityUser>(user);
+
+        var userExists = _userManager.Users.Where(x => x.UserName == mapped.UserName).FirstOrDefault();
+
+
         if (userExists == null)
         {
-            await _userManager.CreateAsync(user);
+            var result = await _userManager.CreateAsync(mapped, user.Password);
+            if (result.Succeeded)
+            {
+                await ValidationExistsRole();
 
-            await ValidationExistsRole();
+                await _userManager.AddToRoleAsync(mapped, "Member");
+            }
 
-            await _userManager.AddToRoleAsync(user, "Member");
+            else
+            {
+                foreach (var erro in result.Errors)
+                {
+                    _notificationContext.AddNotification(400, erro.Description);
+                }
+            }
         }
         else
             _notificationContext.AddNotification(400, "Usuário já existente");
 
 
-        return new ResultViewModel
+        return new Register
         {
-            data = user,
-            Success = _notificationContext.HasNotifications()
+            Registered = !_notificationContext.HasNotifications(),
+            UserAccount = user.UserName,
+            Message =  "Usuário cadastrado com sucesso."
         };
 
             
     }
 
-    public async Task<ResultViewModel> LoginAccount(IdentityUser user)
+    public async Task<ResultViewModel> LoginAccount(UserAccount user)
     {
-        var result = await _signInManager.PasswordSignInAsync(user.UserName,
-         user.PasswordHash, isPersistent: false, lockoutOnFailure: false);
 
-        if (!result.Succeeded)
-            _notificationContext.AddNotification(400, "A senha e/ou email não conferem.");
-      
+
+        var userExists = _userManager.Users.Where(x => x.UserName == user.UserName).FirstOrDefault();
+
+        if (userExists != null)
+        {
+            var result = await _signInManager.PasswordSignInAsync(userExists.UserName,
+             user.Password, isPersistent: false, lockoutOnFailure: false); ;
+
+            if (!result.Succeeded)
+
+                _notificationContext.AddNotification(400, "Não foi possivel realizar o Login, tente novamente.");
+        }
+        else
+        {
+            _notificationContext.AddNotification(404, "Usuário não localizado.");
+
+        }
+
 
         return new ResultViewModel
         {
-            data = user,
-            Success = _notificationContext.HasNotifications()
+            data = await GenerateToken(userExists),
+            Success = !_notificationContext.HasNotifications()
         };
 
     }
@@ -76,50 +107,38 @@ public class UserService : IUserService
     private async Task<Token>  GenerateToken(IdentityUser userInfo)
     {
 
-        //define declarações do usuário
+        var roles = await GetRoles(userInfo);
 
-        var claims = new List<Claim> {
-             new Claim(JwtRegisteredClaimNames.UniqueName, userInfo.UserName),
-             new Claim(JwtRegisteredClaimNames.Email, userInfo.Email),
-             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        };
 
-        var user = new IdentityUser
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+        var tokenDescriptor = new SecurityTokenDescriptor
         {
-            UserName = userInfo.UserName,
-            Email = userInfo.Email,
-            EmailConfirmed = true
+            Subject = new ClaimsIdentity(new Claim[]
+            {
+                new Claim(JwtRegisteredClaimNames.UniqueName, userInfo.UserName),
+                new Claim(JwtRegisteredClaimNames.Email, userInfo.Email),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                //new Claim("internalUser", userInfo.UserName.ToString(), ClaimValueTypes.Boolean),
+
+            }),
+            NotBefore = DateTime.Now,
+            Expires = DateTime.Now.AddHours(2),
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
         };
 
 
-        var roles = await GetRoles(user);
 
         if (roles != null)
         {
-
             foreach (var role in roles)
             {
-                claims.Add(new Claim(ClaimTypes.Role, role));
+                tokenDescriptor.Subject.AddClaim(new Claim(ClaimTypes.Role, role));
             }
         }
 
-        //gera uma chave com base em um algoritmo simetrico
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
 
-        //gera a assinatura digital do token usando o algoritmo Hmac e a chave privada
-        var credenciais = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        //Tempo de expiracão do token.
-        var expiracao = _configuration["TokenConfiguration:ExpireHours"];
-        var expiration = DateTime.UtcNow.AddHours(double.Parse(expiracao));
-
-        // classe que representa um token JWT e gera o token
-        JwtSecurityToken token = new JwtSecurityToken(
-          issuer: _configuration["TokenConfiguration:Issuer"],
-          audience: _configuration["TokenConfiguration:Audience"],
-          claims: claims,
-          expires: expiration,
-          signingCredentials: credenciais);
+        var token = tokenHandler.CreateToken(tokenDescriptor);
 
 
         //retorna os dados com o token e informacoes
@@ -127,7 +146,7 @@ public class UserService : IUserService
         {
             Authenticated = true,
             TokenJWT = new JwtSecurityTokenHandler().WriteToken(token),
-            Expiration = expiration,
+            Expiration = (DateTime)tokenDescriptor.Expires,
             Message = "Token JWT OK"
         };
     }

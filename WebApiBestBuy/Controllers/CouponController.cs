@@ -6,6 +6,7 @@ using WebApiBestBuy.Domain.Notifications;
 
 namespace WebApiBestBuy.Api.Controllers
 {
+
     [Route("[Controller]")]
     public class CouponController : BaseController
     {

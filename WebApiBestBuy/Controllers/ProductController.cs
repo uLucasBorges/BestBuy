@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.Mvc;
 using WebApiBestBuy.Domain.Models;
 using WebApiBestBuy.Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApiBestBuy.Api.Controllers
 {
     [Route("[Controller]")]
+    [Authorize]
     public class ProductController : BaseController
     {
         IProductRepository _productRepository;
@@ -33,14 +35,18 @@ namespace WebApiBestBuy.Api.Controllers
             return Response(products);
         }
 
-        [HttpGet("/By/{id}")]
+        [HttpGet("By/{id}")]
         public async Task<IActionResult> GetProduct(int id)
         {
             var result = await _productRepository.GetProduct(id);
             return Response(result);
         }
 
-
+        /// <summary>
+        /// s
+        /// </summary>
+        /// <param name="product"></param>
+        /// <returns></returns>
         [HttpPut("Update")]
         public async Task<IActionResult> UpdateProducts(Product product)
         {

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WebApiBestBuy.Api.Controllers;
+using WebApiBestBuy.Domain.Models;
 using WebApiBestBuy.Domain.Notifications;
 using WebApiBestBuy.Domain.Services;
 
@@ -17,14 +18,14 @@ namespace WebApiBestBuy.Controllers
         }
 
         [HttpPost("Registry")]
-        public async Task<IActionResult> CreateAccount(IdentityUser user)
+        public async Task<IActionResult> CreateAccount(UserAccount user)
         {
              var result = await _userService.CreateAccount(user);
             return Response(result);
         }
 
         [HttpPost("Login")]
-        public async Task<IActionResult> LoginAccount(IdentityUser user)
+        public async Task<IActionResult> LoginAccount(UserAccount user)
         {
             var result = await _userService.LoginAccount(user);
             return Response(result);

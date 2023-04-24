@@ -1,11 +1,9 @@
-﻿using System.Data;
-using WebApiBestBuy.Domain.Interfaces;
+﻿using WebApiBestBuy.Domain.Interfaces;
 using WebApiBestBuy.Domain.Models;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using WebApiBestBuy.Domain.ViewModel;
 using WebApiBestBuy.Domain.Notifications;
-using WebApiBestBuy.Infra.Data;
 using Microsoft.Extensions.Options;
 
 namespace WebApiBestBuy.Infra.Repositories

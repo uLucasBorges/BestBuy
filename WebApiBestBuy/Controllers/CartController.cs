@@ -4,6 +4,7 @@ using WebApiBestBuy.Domain.Notifications;
 
 namespace WebApiBestBuy.Api.Controllers
 {
+    [Route("[Controller]")]
     public class CartController : BaseController
     {
         private readonly ICartRepository cartRepository;
@@ -15,7 +16,7 @@ namespace WebApiBestBuy.Api.Controllers
             this.cartRepository = cartRepository;
         }
 
-        [HttpDelete("cart/Remove-Product")]
+        [HttpDelete("Remove/Product")]
         public async Task<IActionResult> DeleteProductsInCart(int productId, int quantityAmount)
         {
             var cartId = base.CreateCartId();
@@ -29,18 +30,17 @@ namespace WebApiBestBuy.Api.Controllers
         }
 
 
-        [HttpPost("cart/Add-Product")]
+        [HttpPost("Add/Product")]
         public async Task<IActionResult> IncluirCarrinho(int ProductId, int Quantity)
         {
             var cartId = CreateCartId();
 
             await cartRepository.AddProductCart(cartId, ProductId, Quantity);
-
             return Response();
         }
 
 
-        [HttpGet("cart/Products")]
+        [HttpGet("List/Products")]
         public async Task<IActionResult> GetProductsInCaty()
         {
             var cartId = base.CreateCartId();
