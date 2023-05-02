@@ -53,11 +53,10 @@ namespace WebApiBestBuy.Api.Controllers
             if (product.IsValid)
             {
                var result = await _productRepository.UpdateProduct(product);
-                return Response(result);
 
             }
-             
-            return BadRequest(product.Erros);
+
+            return Response();
             
         }
 

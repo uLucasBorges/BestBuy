@@ -1,8 +1,11 @@
 ﻿
 
+using WebApiBestBuy.Domain.Entities;
+using WebApiBestBuy.Domain.Validators;
+
 namespace WebApiBestBuy.Domain.Models;
 
-public class Coupon
+public class Coupon : EntityBase
 {
     public int Id { get; set; }
     public string CouponCode { get; set; }
@@ -11,5 +14,9 @@ public class Coupon
 
     public Coupon()
     {
+        _errors = new List<string>();
     }
+
+    public bool Validate() => base.Validate(new CouponValidator(), this);
+
 }
