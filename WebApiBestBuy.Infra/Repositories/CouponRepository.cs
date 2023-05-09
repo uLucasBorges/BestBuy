@@ -34,7 +34,7 @@ namespace WebApiBestBuy.Infra.Repositories;
                     }
 
                     var query = "INSERT CartHeaders (UserId,CouponCode) values (@cartId, @couponCode)";
-                    await connection.ExecuteAsync(query, new { cartId = CartId, couponCode = coupon.data.CouponCode });
+                    await connection.ExecuteAsync(query, new { cartId = CartId, couponCode = coupon.Data.CouponCode });
 
                 connection.Dispose();
 
@@ -47,17 +47,17 @@ namespace WebApiBestBuy.Infra.Repositories;
             }
         }
 
-        public async Task<Coupon> CreateCoupon(string couponCode, double discountAmount)
+        public async Task<Coupon> CreateCoupon(Coupon coupon)
         {
             using (var connection =  new SqlConnection(ConnectionStringEscrita))
             {
                 var query = "INSERT COUPON (COUPONCODE,DiscountAmount) VALUES (@couponCode,@discountAmount)";
 
-                await connection.ExecuteAsync(query, new { CouponCode = couponCode, DiscountAmount = discountAmount });
+                await connection.ExecuteAsync(query, new { CouponCode = coupon.CouponCode, DiscountAmount = coupon.DiscountAmount });
 
                 connection.Dispose();
 
-            return new Coupon { DiscountAmount = discountAmount, CouponCode = couponCode};
+            return coupon;
             }
         }
 
@@ -88,12 +88,12 @@ namespace WebApiBestBuy.Infra.Repositories;
 
             if (result != null)
                 {
-                    return new ResultViewModel { data = result, Success = true };
+                    return new ResultViewModel(result, true);
                 }
 
                 _notificationContext.AddNotification(404, "Ticket inexistente");
 
-                return new ResultViewModel { Success = false };
+            return new ResultViewModel(new Coupon(), false);
 
             }
         }  
@@ -114,10 +114,10 @@ namespace WebApiBestBuy.Infra.Repositories;
                 {
                     _notificationContext.AddNotification(200, "Carrinho já possui Cupom");
 
-                    return new ResultViewModel { data = result, Success = true };
+                return new ResultViewModel(result, true);
                 }
 
-                return new ResultViewModel { Success = false, data = new Coupon() };
+            return new ResultViewModel(new Coupon(), false);
 
             }
         }

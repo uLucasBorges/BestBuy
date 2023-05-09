@@ -2,7 +2,9 @@
 
 using Microsoft.AspNetCore.Mvc;
 using WebApiBestBuy.Domain.Interfaces;
+using WebApiBestBuy.Domain.Models;
 using WebApiBestBuy.Domain.Notifications;
+using WebApiBestBuy.Domain.ViewModel;
 
 namespace WebApiBestBuy.Api.Controllers
 {
@@ -19,13 +21,19 @@ namespace WebApiBestBuy.Api.Controllers
         }
 
         [HttpPost("/Create")]
-        public async Task<IActionResult> CreateCoupon(string couponCode, double amount)
+        public async Task<IActionResult> CreateCoupon(Coupon coupon)
         {
-            var existsCoupon = await couponRepository.ExistsCoupon(couponCode);
-
-            if (!existsCoupon.Success)
+            if (!coupon.IsValid)
             {
-                var couponCreated = await couponRepository.CreateCoupon(couponCode, amount);
+                return Response(coupon.Erros);
+            }
+
+            ResultViewModel? existsCoupon = await couponRepository.ExistsCoupon(coupon.CouponCode);
+
+
+            if (!(existsCoupon?.Success == true))
+            {
+                var couponCreated = await couponRepository.CreateCoupon(coupon);
 
                 return Ok(couponCreated);
             }

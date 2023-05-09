@@ -123,7 +123,7 @@ namespace WebApiBestBuy.Infra.Repositories
                         controle += obj.ValueTotal;
                     }
 
-                    controle -= existsCoupon.data.DiscountAmount;
+                    controle -= existsCoupon.Data.DiscountAmount;
 
                     if (controle < 0)
                         controle = 0;
@@ -133,7 +133,7 @@ namespace WebApiBestBuy.Infra.Repositories
                 return new CartVM
                 {
                     Products = productsInCart,
-                    DiscountAmount = existsCoupon.data.DiscountAmount,
+                    DiscountAmount = existsCoupon.Data.DiscountAmount,
                     Price = controle 
                 };
 

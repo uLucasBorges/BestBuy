@@ -77,7 +77,7 @@ namespace WebApiBestBuy.Infra.Repositories;
              
         }
 
-        public async Task<ProductResultVM> GetProduct(int Id)
+        public async Task<ResultViewModel> GetProduct(int Id)
         {
             using (var connection =  new SqlConnection(ConnectionStringEscrita))
             {
@@ -87,16 +87,13 @@ namespace WebApiBestBuy.Infra.Repositories;
             connection.Dispose();
 
             if (result != null)
-    
-                     return new ProductResultVM
-                    {
-                        data = result,
-                        Success = true
-                    };
+
+             return new ResultViewModel(result, true);
+                   
 
 
                    _notificationContext.AddNotification(404, "Produto não encontrado");
-                   return new ProductResultVM();
+                   return new ResultViewModel();
             }
         }
 
@@ -112,7 +109,7 @@ namespace WebApiBestBuy.Infra.Repositories;
 
                     return new ResultViewModel
                     {
-                        data = result,
+                        Data = result,
                         Success = true
                     };
 
@@ -141,11 +138,11 @@ namespace WebApiBestBuy.Infra.Repositories;
                     var result = await connection.ExecuteAsync(query, new
                     {
                         id = product.Id,
-                        name = product.Name ?? existsProduct.data.Name,
-                        price = product.Price == 0.0 ? existsProduct.data.Price : product.Price,
-                        description = product.Description ?? existsProduct.data.Description,
-                        categoryId = existsProduct.data.CategoryId == 0 ?  product.CategoryId : existsProduct.data.CategoryId,
-                        imageUrl = product.ImageUrl ?? existsProduct.data.ImageUrl
+                        name = product.Name ?? existsProduct.Data.Name,
+                        price = product.Price == 0.0 ? existsProduct.Data.Price : product.Price,
+                        description = product.Description ?? existsProduct.Data.Description,
+                        categoryId = existsProduct.Data.CategoryId == 0 ?  product.CategoryId : existsProduct.Data.CategoryId,
+                        imageUrl = product.ImageUrl ?? existsProduct.Data.ImageUrl
 
                     }) ;;
                 connection.Dispose();
@@ -153,16 +150,16 @@ namespace WebApiBestBuy.Infra.Repositories;
                 if (result == -1)
                     {
                         _notificationContext.AddNotification(400, "não foi possivel atualizar o produto");
-                        return new ResultViewModel { Success = false, data = product };
+                        return new ResultViewModel { Success = false, Data = product };
                     }
                     else
-                        return new ResultViewModel { Success = true, data = product };
+                        return new ResultViewModel { Success = true, Data = product };
                 }
             }
 
             _notificationContext.AddNotification(404, "Produto não encontrado");
 
-            return new ResultViewModel { Success = false , data = product};
+            return new ResultViewModel { Success = false , Data = product};
             
         }
     }

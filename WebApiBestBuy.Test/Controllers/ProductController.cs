@@ -17,15 +17,12 @@ namespace WebApiBestBuy.Test.Controllers
         private readonly MockRepository mockRepository;
         private readonly Mock<IProductRepository> mockProductRepository;
         private readonly Mock<INotificationContext> mockNotificationContext;
-        private readonly ResultViewModel resultViewModel;
 
         public ProductControllerTests()
         {
             this.mockRepository = new MockRepository(MockBehavior.Loose);
             this.mockProductRepository = mockRepository.Create<IProductRepository>();
             this.mockNotificationContext = this.mockRepository.Create<INotificationContext>();
-            this.resultViewModel = this.mockRepository.Create<ResultViewModel>().Object;
-            this.resultViewModel.Success = true;
         }
 
         public ProductController createController()
@@ -49,7 +46,7 @@ namespace WebApiBestBuy.Test.Controllers
             var result = (ObjectResult)await productControler.GetProducts();
 
 
-            mockProductRepository.Setup(x => x.GetProducts()).ReturnsAsync(resultViewModel).Verifiable();
+            mockProductRepository.Setup(x => x.GetProducts()).ReturnsAsync(new ResultViewModel { Success  = true}).Verifiable();
 
             mockProductRepository.Verify(x => x.GetProducts(), Times.Once);
 
@@ -69,7 +66,7 @@ namespace WebApiBestBuy.Test.Controllers
             var result = (ObjectResult)await productController.GetProduct(ID);
 
 
-            mockProductRepository.Setup(x => x.GetProduct(ID)).ReturnsAsync(new ProductResultVM { Success = true }).Verifiable();
+            mockProductRepository.Setup(x => x.GetProduct(ID)).ReturnsAsync(new ResultViewModel { Success = true }).Verifiable();
 
             mockProductRepository.Verify(x => x.GetProduct(ID), Times.Once);
 

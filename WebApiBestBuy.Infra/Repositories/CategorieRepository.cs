@@ -54,7 +54,7 @@ public class CategorieRepository : ICategorieRepository
 
                     return new ResultViewModel
                     {
-                        data = result,
+                        Data = result,
                         Success = true
                     };
 
