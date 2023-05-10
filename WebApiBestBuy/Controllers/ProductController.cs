@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Authorization;
 namespace WebApiBestBuy.Api.Controllers
 {
     [Route("[Controller]")]
-    [Authorize]
     public class ProductController : BaseController
     {
         IProductRepository _productRepository;

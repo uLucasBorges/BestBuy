@@ -12,12 +12,14 @@ namespace WebApiBestBuy.Infra.Repositories
     {
         private string   ConnectionStringEscrita { get; }
         private readonly ICouponRepository _couponRepository;
+        private readonly IProductRepository _productRepository;
         private readonly INotificationContext _notificationContext;
 
 
-        public CartRepository(IOptions<DatabaseConfig> config ,ICouponRepository couponRepository, INotificationContext notificationContext)
+        public CartRepository(IOptions<DatabaseConfig> config ,ICouponRepository couponRepository, IProductRepository productRepository, INotificationContext notificationContext)
         {
             ConnectionStringEscrita = config.Value.ConnectionStringEscrita;
+            _productRepository = productRepository;
             _notificationContext = notificationContext;
             _couponRepository = couponRepository;
         }
@@ -106,7 +108,7 @@ namespace WebApiBestBuy.Infra.Repositories
             {
                 connection.Open();
 
-                var query = "SELECT C.Id, P.Name , C.Quantity , C.ValueTotal \r\n  FROM CART C \r\n  INNER JOIN PRODUCTS P ON P.Id = C.ProductId \r\n  WHERE C.ID = @CartId";
+                var query = "SELECT P.Id, P.Name ,P.Price as unitPrice, C.Quantity , C.ValueTotal \r\n  FROM CART C \r\n  INNER JOIN PRODUCTS P ON P.Id = C.ProductId \r\n  WHERE C.ID = @CartId";
 
                 IEnumerable<ProductViewModel> productsInCart = await connection.QueryAsync<ProductViewModel>(query, new { cartId = CartId });
 
@@ -116,13 +118,14 @@ namespace WebApiBestBuy.Infra.Repositories
 
                 var controle = 0.0;
 
-                if (existsCoupon.Success)
-                {
+               
                     foreach(ProductViewModel obj in productsInCart)
                     {
                         controle += obj.ValueTotal;
                     }
 
+                if (existsCoupon.Success)
+                {
                     controle -= existsCoupon.Data.DiscountAmount;
 
                     if (controle < 0)
@@ -134,7 +137,7 @@ namespace WebApiBestBuy.Infra.Repositories
                 {
                     Products = productsInCart,
                     DiscountAmount = existsCoupon.Data.DiscountAmount,
-                    Price = controle 
+                    CartPriceWithDiscount = controle 
                 };
 
                 
@@ -172,6 +175,46 @@ namespace WebApiBestBuy.Infra.Repositories
                 _notificationContext.AddNotification(404, "Carrinho inexistente");
                 return false;
 
+            }
+        }
+        /// <summary>
+        /// Método para inserir ou adicionar mais produtos ao carrinho
+        /// </summary>
+        /// <param name="CartId"></param>
+        /// <param name="ProductId"></param>
+        /// <param name="AmountInsert"></param>
+        /// <returns></returns>
+        public async Task Testing(string CartId, int ProductId, double AmountInsert)
+        {
+
+            var exists = await _productRepository.GetProduct(ProductId);
+
+            if (_notificationContext.HasNotifications())
+            {
+                return;
+            }
+
+            using (var connection = new SqlConnection(ConnectionStringEscrita))
+            {
+                connection.Open();
+                var query = "IF (EXISTS(select top 1 1 from ProductsByCart pbc\r\n  where pbc.id = @CartId\r\n  and pbc.ProductId = @ProductId)) SELECT 1 ELSE SELECT 0";
+
+               var result = (await connection.QueryAsync<int>(query, new {cartId  = CartId, productId = ProductId})).FirstOrDefault();
+
+                if(result == 1)
+                query = "update Cart \r\nset Quantity = ((select quantity from ProductsByCart c where c.Id = @cartId and c.ProductId = @productId) + @amountInsert), ValueTotal = (select ValueTotal from cart c where c.Id = @cartId and c.ProductId = @productId)\r\n+ (@amountInsert * (select price from Products where id = @ProductId))\r\nwhere Id = @cartId\r\nand ProductId = @productId";
+ 
+
+                if(result == 0)
+                 query = "INSERT CART VALUES (@CartId,@ProductId,@amountInsert,(@amountInsert * (select price from Products where id = @ProductId)))";
+                
+
+
+                await connection.ExecuteAsync(query, new { cartId = CartId, productId = ProductId, amountInsert = AmountInsert });
+
+                _notificationContext.AddNotification(200, "Inserido com sucesso.");
+
+                return;
             }
         }
 

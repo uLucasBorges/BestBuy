@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using WebApiBestBuy.Api.Controllers;
 using WebApiBestBuy.Domain.Interfaces;
 using WebApiBestBuy.Domain.Models;
 using WebApiBestBuy.Domain.Notifications;
-using Xunit;
 
 namespace WebApiBestBuy.Test.Controllers
 {
@@ -47,16 +41,22 @@ namespace WebApiBestBuy.Test.Controllers
         }
 
 
-        [Fact]
+        [Fact(Skip = "Método não implementado")]
         public async Task DeleteCoupon()
         {
 
         }
 
+
+        [Fact(Skip = "Método não implementado")]
+
         public async Task ApplyCoupon()
         {
 
         }
+
+
+        [Fact(Skip = "Método não implementado")]
 
         public async Task RemoveCoupom()
         {

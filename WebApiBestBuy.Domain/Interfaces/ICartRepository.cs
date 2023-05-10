@@ -10,5 +10,7 @@ public interface ICartRepository
     public Task<bool> RemoveProductCart(int productId , int quantity, string cartId);
     public Task<CartVM> GetProductsByCart(string cartId);
     public Task<bool> AddCoupon(string cartId, string couponCode);
+    public Task Testing(string CartId, int ProductId, double AmountInsert);
+
 
 }

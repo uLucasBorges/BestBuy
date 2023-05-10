@@ -2,7 +2,7 @@
 
 public class CartVM
 {
-    public dynamic Products { get; set; }
+    public IEnumerable<ProductViewModel> Products { get; set; }
     public double DiscountAmount { get; set; }
-    public double Price { get; set; }
+    public double CartPriceWithDiscount { get; set; }
 }

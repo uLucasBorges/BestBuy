@@ -35,7 +35,8 @@ namespace WebApiBestBuy.Api.Controllers
         {
             var cartId = CreateCartId();
 
-            await cartRepository.AddProductCart(cartId, ProductId, Quantity);
+            await cartRepository.Testing(cartId, ProductId, Quantity);
+
             return Response();
         }
 
