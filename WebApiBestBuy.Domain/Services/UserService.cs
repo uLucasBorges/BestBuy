@@ -95,7 +95,7 @@ public class UserService : IUserService
         }
 
 
-        return new ResultViewModel ( await GenerateToken(userExists),  !_notificationContext.HasNotifications() );
+        return new ResultViewModel (await GenerateToken(userExists),  !_notificationContext.HasNotifications());
 
     }
 

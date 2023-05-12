@@ -1,6 +1,4 @@
-﻿
-
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using WebApiBestBuy.Domain.Interfaces;
 using WebApiBestBuy.Domain.Models;
 using WebApiBestBuy.Domain.Notifications;
@@ -21,7 +19,7 @@ namespace WebApiBestBuy.Api.Controllers
         }
 
         [HttpPost("/Create")]
-        public async Task<IActionResult> CreateCoupon(Coupon coupon)
+        public async Task<IActionResult> CreateCoupon([FromBody] Coupon coupon)
         {
             if (!coupon.IsValid)
             {
@@ -31,11 +29,11 @@ namespace WebApiBestBuy.Api.Controllers
             ResultViewModel? existsCoupon = await couponRepository.ExistsCoupon(coupon.CouponCode);
 
 
-            if (!(existsCoupon?.Success == true))
+            if (!existsCoupon.Success)
             {
-                var couponCreated = await couponRepository.CreateCoupon(coupon);
+                await couponRepository.CreateCoupon(coupon);
 
-                return Ok(couponCreated);
+                return Ok(new ResultViewModel { Data = coupon, Success = true, Message = "Cupom criado com Sucesso!"});
             }
 
             return BadRequest("Cupon já existente");

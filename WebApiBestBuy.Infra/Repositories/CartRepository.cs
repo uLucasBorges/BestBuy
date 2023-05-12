@@ -5,6 +5,7 @@ using Microsoft.Data.SqlClient;
 using WebApiBestBuy.Domain.ViewModel;
 using WebApiBestBuy.Domain.Notifications;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 namespace WebApiBestBuy.Infra.Repositories
 {
@@ -45,6 +46,7 @@ namespace WebApiBestBuy.Infra.Repositories
 
         }
 
+        //metodo não está sendo utilizado, pois estou tirando a dependencia da proc e crie o metoddo InsertOrUpdate com a lógica
         public async Task<bool> AddProductCart(string CartId, int ProductId, int AmountInsert)
         {
 
@@ -94,7 +96,7 @@ namespace WebApiBestBuy.Infra.Repositories
                
                 connection.Dispose();
 
-                if (exec != null)
+                if (!exec.IsNullOrEmpty())
                     return true;
 
                    return false;
@@ -107,6 +109,7 @@ namespace WebApiBestBuy.Infra.Repositories
             using (var connection =  new SqlConnection(ConnectionStringEscrita))
             {
                 connection.Open();
+
 
                 var query = "SELECT P.Id, P.Name ,P.Price as unitPrice, C.Quantity , C.ValueTotal \r\n  FROM CART C \r\n  INNER JOIN PRODUCTS P ON P.Id = C.ProductId \r\n  WHERE C.ID = @CartId";
 
@@ -184,11 +187,12 @@ namespace WebApiBestBuy.Infra.Repositories
         /// <param name="ProductId"></param>
         /// <param name="AmountInsert"></param>
         /// <returns></returns>
-        public async Task Testing(string CartId, int ProductId, double AmountInsert)
+        public async Task InsertOrUpdate(string CartId, int ProductId, double AmountInsert)
         {
 
             var exists = await _productRepository.GetProduct(ProductId);
 
+    
             if (_notificationContext.HasNotifications())
             {
                 return;

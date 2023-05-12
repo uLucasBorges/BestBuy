@@ -88,12 +88,12 @@ namespace WebApiBestBuy.Infra.Repositories;
 
             if (result != null)
                 {
-                    return new ResultViewModel(result, true);
+                    return new ResultViewModel(result, true, "Cupom Encontrado com Succeso");
                 }
 
-                _notificationContext.AddNotification(404, "Ticket inexistente");
+                _notificationContext.AddNotification(404, "Cupom inexistente");
 
-            return new ResultViewModel(new Coupon(), false);
+            return new ResultViewModel(new Coupon(), false, "Cupom não  existentente");
 
             }
         }  
@@ -114,10 +114,10 @@ namespace WebApiBestBuy.Infra.Repositories;
                 {
                     _notificationContext.AddNotification(200, "Carrinho já possui Cupom");
 
-                return new ResultViewModel(result, true);
+                   return new ResultViewModel(result, true, "Carrinho já possui Cupom");
                 }
 
-            return new ResultViewModel(new Coupon(), false);
+            return new ResultViewModel(new Coupon(), false, "Carrinho não possui Cupom");
 
             }
         }

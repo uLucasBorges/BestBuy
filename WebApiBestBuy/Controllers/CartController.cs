@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebApiBestBuy.Domain.Interfaces;
 using WebApiBestBuy.Domain.Notifications;
+using WebApiBestBuy.Domain.ViewModel;
 
 namespace WebApiBestBuy.Api.Controllers
 {
@@ -35,7 +36,7 @@ namespace WebApiBestBuy.Api.Controllers
         {
             var cartId = CreateCartId();
 
-            await cartRepository.Testing(cartId, ProductId, Quantity);
+            await cartRepository.InsertOrUpdate(cartId, ProductId, Quantity);
 
             return Response();
         }
@@ -49,7 +50,7 @@ namespace WebApiBestBuy.Api.Controllers
             var exists = await cartRepository.ExistCart(cartId);
 
             if (!exists)
-                return BadRequest();
+                return NotFound(new ResultViewModel { Success = false, Data = "O Carrinho está vazio!" });
 
             var products = await cartRepository.GetProductsByCart(cartId);
 

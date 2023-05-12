@@ -13,9 +13,6 @@ namespace WebApiBestBuy.Domain.Validators
                 .WithMessage("O Codigo do cupom não deve ser vazio");
 
             RuleFor(x => x.DiscountAmount)
-                .NotEqual(0.0)
-                .WithMessage("O Desconto do cupom deve ser maior que $0,00")
-
                 .NotEmpty()
                 .WithMessage("O Desconto do cupom não deve ser vazio");
         }

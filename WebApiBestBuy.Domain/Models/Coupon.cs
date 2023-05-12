@@ -17,6 +17,14 @@ public class Coupon : EntityBase
     public Coupon()
     {
         _errors = new List<string>();
+    }
+
+    public Coupon(int id, string couponCode, double discountAmount)
+    {
+        Id = id;
+        CouponCode = couponCode;
+        DiscountAmount = discountAmount;
+        _errors = new List<string>();
         Validate();
     }
 
