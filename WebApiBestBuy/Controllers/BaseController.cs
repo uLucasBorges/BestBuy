@@ -6,6 +6,7 @@ namespace WebApiBestBuy.Api.Controllers
     public class BaseController : ControllerBase
     {
         protected readonly INotificationContext _notificationContext;
+
         protected BaseController(INotificationContext notificationContext)
         {
             _notificationContext = notificationContext;
@@ -47,3 +48,4 @@ namespace WebApiBestBuy.Api.Controllers
         }
     }
 }
+
