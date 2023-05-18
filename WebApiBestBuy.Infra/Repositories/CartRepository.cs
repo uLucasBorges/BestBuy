@@ -1,12 +1,11 @@
 ﻿using WebApiBestBuy.Domain.Interfaces;
 using WebApiBestBuy.Domain.Models;
 using Dapper;
-using Microsoft.Data.SqlClient;
 using WebApiBestBuy.Domain.ViewModel;
 using WebApiBestBuy.Domain.Notifications;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using WebApiBestBuy.Infra.Data;
+using System.Data;
 
 namespace WebApiBestBuy.Infra.Repositories
 {
@@ -62,17 +61,18 @@ namespace WebApiBestBuy.Infra.Repositories
 
                 _context.Begin();
 
-                var query = "exec InsertOrUpdateCart \r\n@cartId = @CartId,\r\n@productId = @ProductId,\r\n@amountInsert = @AmountInsert";
+                //var query = "exec InsertOrUpdateCart \r\n@cartId = @CartId,\r\n@productId = @ProductId,\r\n@amountInsert = @AmountInsert";
 
-                var result = context.connection.Execute(query, new
+                var result = await context.connection.ExecuteAsync(@"InsertOrUpdateCart", new
                 {
                     cartId = CartId,
                     productId = ProductId,
                     amountInsert = AmountInsert
-                }, transaction: _context.transaction);
+                }, transaction: _context.transaction,
+                commandType: CommandType.StoredProcedure);
 
-                context.Commit();
 
+            
                 if (result == -1) { 
                 _notificationContext.AddNotification(404, "Produto não encontrado");
                 return false;
@@ -88,12 +88,12 @@ namespace WebApiBestBuy.Infra.Repositories
             using (var context = _context)
             {
 
-                var query = "select * from cart where Id = @CartID";
+                var query = "select * from cart where Id = @cartID";
 
                 _context.Begin();
 
 
-                var exec = await context.connection.QueryAsync<Cart>(query, new { CartID = cartID } ,transaction: _context.transaction);
+                var exec = await context.connection.QueryAsync<Cart>(query, new { cartID } ,transaction: _context.transaction);
                
                 context.Dispose();
 
@@ -113,7 +113,7 @@ namespace WebApiBestBuy.Infra.Repositories
 
                 var query = "SELECT P.Id, P.Name ,P.Price as unitPrice, C.Quantity , C.ValueTotal \r\n  FROM CART C \r\n  INNER JOIN PRODUCTS P ON P.Id = C.ProductId \r\n  WHERE C.ID = @CartId";
 
-                IEnumerable<ProductViewModel> productsInCart = await context.connection.QueryAsync<ProductViewModel>(query, new { cartId = CartId }, transaction: _context.transaction);
+                IEnumerable<ProductViewModel> productsInCart = await context.connection.QueryAsync<ProductViewModel>(query, new { CartId }, transaction: _context.transaction);
 
                 var existsCoupon = await _couponRepository.CartHaveCoupon(CartId);
                

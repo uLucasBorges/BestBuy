@@ -52,7 +52,7 @@ namespace WebApiBestBuy.Infra.Data
             Dispose();
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             transaction?.Dispose();
             connection?.Close();
