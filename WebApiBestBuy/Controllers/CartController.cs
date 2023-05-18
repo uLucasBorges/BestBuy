@@ -2,6 +2,7 @@
 using WebApiBestBuy.Domain.Interfaces;
 using WebApiBestBuy.Domain.Notifications;
 using WebApiBestBuy.Domain.ViewModel;
+using WebApiBestBuy.Infra.Repositories;
 
 namespace WebApiBestBuy.Api.Controllers
 {
@@ -10,11 +11,12 @@ namespace WebApiBestBuy.Api.Controllers
     {
         private readonly ICartRepository cartRepository;
         private readonly INotificationContext notificationContext;
+        private readonly IUnitOfWork _unitOfWork;
 
-
-        public CartController(ICartRepository cartRepository, INotificationContext notificationContext) : base(notificationContext)
+        public CartController(ICartRepository cartRepository, INotificationContext notificationContext, IUnitOfWork unitOfWork) : base(notificationContext)
         {
             this.cartRepository = cartRepository;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpDelete("Remove/Product")]
@@ -47,13 +49,13 @@ namespace WebApiBestBuy.Api.Controllers
         {
             var cartId = base.CreateCartId();
 
-            var exists = await cartRepository.ExistCart(cartId);
+            var exists = await _unitOfWork.CartRepository.ExistCart(cartId);
 
-            if (!exists)
+            if (!exists) 
                 return NotFound(new ResultViewModel { Success = false, Data = "O Carrinho está vazio!" });
 
             var products = await cartRepository.GetProductsByCart(cartId);
-
+        
             return Ok(products);
         }
     }

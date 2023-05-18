@@ -16,7 +16,6 @@ namespace WebApiBestBuy.Infra.Repositories
         private readonly IProductRepository _productRepository;
         private readonly INotificationContext _notificationContext;
 
-
         public CartRepository(IOptions<DatabaseConfig> config ,ICouponRepository couponRepository, IProductRepository productRepository, INotificationContext notificationContext)
         {
             ConnectionStringEscrita = config.Value.ConnectionStringEscrita;

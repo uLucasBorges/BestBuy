@@ -15,30 +15,39 @@ namespace WebApiBestBuy.Infra.Repositories
     public class UnitOfWork : IUnitOfWork
     {
 
-        protected readonly DatabaseConfig _dbConfig;
+        private readonly DatabaseConfig _dbConfig;
+        private ICartRepository _cartRepository;
+        private ICategorieRepository _categorieRepository;
+        private ICouponRepository _couponRepository;
+        private IProductRepository _productRepository;
 
-        public UnitOfWork(IOptions<DatabaseConfig> config)
-        {
-            _id = Guid.NewGuid();
-            _dbConfig = config.Value;
-        }
-
-        IDbConnection _connection = null;
-        IDbTransaction _transaction = null;
+        IDbConnection _connection;
+        IDbTransaction _transaction;
         Guid _id = Guid.Empty;
 
-        IDbConnection IUnitOfWork.Connection
+        public UnitOfWork(IOptions<DatabaseConfig> config, ICartRepository cartRepository, ICategorieRepository categorieRepository, ICouponRepository couponRepository, IProductRepository productRepository)
         {
-            get { return _connection; }
+            _dbConfig = config.Value;
+            _cartRepository = cartRepository;
+            _categorieRepository = categorieRepository;
+            _couponRepository = couponRepository;
+            _productRepository = productRepository;
+            _id = Guid.NewGuid();
         }
-        IDbTransaction IUnitOfWork.Transaction
-        {
-            get { return _transaction; }
-        }
-        Guid IUnitOfWork.Id
-        {
-            get { return _id; }
-        }
+
+
+
+        public ICartRepository CartRepository => _cartRepository;
+        public ICategorieRepository CategorieRepository => _categorieRepository;
+        public ICouponRepository CouponRepository => _couponRepository;
+        public IProductRepository ProductRepository => _productRepository;
+
+
+
+        IDbConnection IUnitOfWork.Connection   { get;}
+        IDbTransaction IUnitOfWork.Transaction { get; }
+        Guid IUnitOfWork.Id{ get; }
+
 
         public void Begin()
         {
@@ -52,54 +61,43 @@ namespace WebApiBestBuy.Infra.Repositories
 
         public void Commit()
         {
-            if (_connection == null)
-                return;
+            _transaction?.Commit();
 
-            if (_transaction != null)
-                _transaction.Commit();
-
-            _connection.Close();
+            _connection?.Close();
             Dispose();
         }
 
         public void Rollback()
         {
-            if (_connection == null)
-                return;
+     
+            _transaction?.Rollback();
 
-            if (_transaction != null)
-                _transaction.Rollback();
-
-            _connection.Close();
+            _connection?.Close();
             Dispose();
         }
 
         public void Dispose()
         {
-            if (_connection == null)
-                return;
-
-            if (_transaction != null)
-                _transaction.Dispose();
-
-            _transaction = null;
-            _connection.Close();
+        
+                _transaction?.Dispose();
+                _connection?.Close();
         }
 
     }
 
 
     public interface IUnitOfWork : IDisposable
-    {
-          ICartRepository _cartRepository { get; set; }
-          ICategorieRepository _categorieRepository { get; set; }
-          ICouponRepository _couponRepository { get; set; }
-          IProductRepository _ProductRepository { get; set; }
+    { 
+
+        public ICartRepository CartRepository { get; }
+        public ICategorieRepository CategorieRepository { get; }
+        public ICouponRepository CouponRepository { get; }
+        public IProductRepository ProductRepository { get; }
+        public Guid Id { get; }
+        public IDbConnection Connection { get; }
+        public IDbTransaction Transaction { get; }
 
 
-        Guid Id { get; }
-        IDbConnection Connection { get; }
-        IDbTransaction Transaction { get; }
         void Begin();
         void Commit();
         void Rollback();
