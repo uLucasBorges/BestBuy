@@ -2,8 +2,6 @@
 using WebApiBestBuy.Domain.Interfaces;
 using WebApiBestBuy.Domain.Notifications;
 using WebApiBestBuy.Domain.ViewModel;
-using WebApiBestBuy.Infra.Repositories;
-
 namespace WebApiBestBuy.Api.Controllers
 {
     [Route("[Controller]")]

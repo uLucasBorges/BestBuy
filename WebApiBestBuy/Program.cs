@@ -1,11 +1,11 @@
-using System.Net;
-using System.Reflection;
+
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using WebApiBestBuy.Api.ExtensionServices;
+using WebApiBestBuy.Domain.Interfaces;
 using WebApiBestBuy.Infra.Data;
 using WebApiBestBuy.Infra.Repositories;
 
