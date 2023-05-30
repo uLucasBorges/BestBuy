@@ -53,7 +53,7 @@ namespace WebApiBestBuy.Api.Controllers
                 file.CopyTo(stream);
             }
 
-            var arquivo = _appEnvironment.WebRootPath + $"\\Files\\{file.FileName}";
+            var arquivo = _appEnvironment.WebRootPath + @$"\Files\{file.FileName}";
 
             var xls = new XLWorkbook(arquivo);
 
@@ -82,8 +82,14 @@ namespace WebApiBestBuy.Api.Controllers
 
             }
 
-            if (Directory.Exists(path))
-                Directory.Delete(arquivo);
+            DirectoryInfo di = new DirectoryInfo(path);
+
+            foreach (FileInfo fileDI in di.GetFiles())
+            {
+                fileDI.Delete();
+            }
+
+         
 
 
 
