@@ -16,7 +16,6 @@ public class Product : EntityBase
 
     public Product() {
         _errors = new List<string>();
-
     }
 
 

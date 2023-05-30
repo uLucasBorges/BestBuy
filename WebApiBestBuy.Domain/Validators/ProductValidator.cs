@@ -10,49 +10,64 @@ public class ProductValidator : AbstractValidator<Product>
     {
         RuleFor(x => x.Name)
             .NotEmpty()
-            .WithMessage("O nome do produto não pode ser vazio.")
+            .WithMessage("O nome do produto não pode ser vazio.");
 
+        RuleFor(x => x.Name)
             .NotNull()
-            .WithMessage("o nome do produto não deve ser nulo.")
-        
+            .WithMessage("o nome do produto não deve ser nulo.");
+                  
+            
+        RuleFor(x => x.Name)
             .MinimumLength(5)
-            .WithMessage("O nome do produto deve ter no mínimo 5 caracteres.")
-
+            .WithMessage("O nome do produto deve ter no mínimo 5 caracteres.");
+        
+        RuleFor(x => x.Name)
             .MaximumLength(50)
-            .WithMessage("O nome do produto ter no máximo 50 caracteres.");
+            .WithMessage("O nome do produto ter no máximo 50 caracteres."); ;
+
 
         RuleFor(x => x.CategoryId)
             .NotEqual(0)
-            .WithMessage("A Categoria do produto não pode ser 0")
-
+            .WithMessage("A Categoria do produto não pode ser 0");
+   
+        RuleFor(x => x.CategoryId)
             .NotEmpty()
-            .WithMessage("Você deve possuir uma categoria")
-
+            .WithMessage("Você deve possuir uma categoria");
+       
+        RuleFor(x => x.CategoryId)
             .NotNull()
             .WithMessage("A categoria não pode ser nula");
 
+
         RuleFor(x => x.Price)
         .NotEqual(0)
-        .WithMessage("O Valor produto não pode ser $0,00")
-
+        .WithMessage("O Valor produto não pode ser $0,00");
+        
+        RuleFor(x => x.Price)
         .NotEmpty()
-        .WithMessage("O Valor do produto não pode ser vazio.")
-
+        .WithMessage("O Valor do produto não pode ser vazio.");
+        
+        RuleFor(x => x.Price)
         .NotNull()
         .WithMessage("O Valor do produto não deve ser nulo.");
 
+
+
         RuleFor(X => X.Description)
             .NotEmpty()
-            .WithMessage("A Descrição do produto não pode ser vazia.")
-
+            .WithMessage("A Descrição do produto não pode ser vazia.");
+    
+        RuleFor(X => X.Description)
             .NotNull()
-            .WithMessage("A Descrição do produto não deve ser nula.")
+            .WithMessage("A Descrição do produto não deve ser nula.");
 
+        RuleFor(X => X.Description)
             .MinimumLength(5)
-            .WithMessage("A Descrição do produto deve ter no mínimo 5 caracteres.")
+            .WithMessage("A Descrição do produto deve ter no mínimo 5 caracteres.");
 
+        RuleFor(X => X.Description)
             .MaximumLength(50)
-            .WithMessage("A Descrição do produto ter no máximo 50 caracteres.");
+            .WithMessage("A Descrição do produto deve ter no máximo 50 caracteres.");
 
 
         RuleFor(x => x.ImageUrl)

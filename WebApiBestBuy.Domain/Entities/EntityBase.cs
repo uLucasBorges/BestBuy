@@ -1,5 +1,7 @@
-﻿using FluentValidation;
+﻿using AutoMapper.Configuration.Annotations;
+using FluentValidation;
 using FluentValidation.Results;
+using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
 namespace WebApiBestBuy.Domain.Entities;

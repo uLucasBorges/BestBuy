@@ -2,6 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using WebApiBestBuy.Domain.Interfaces;
 using WebApiBestBuy.Domain.Models;
+using AutoMapper;
+using WebApiBestBuy.Domain.ViewModel;
+using System.Text.Unicode;
+using System.Text;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace WebApiBestBuy.Api.Controllers
 {
@@ -10,17 +15,24 @@ namespace WebApiBestBuy.Api.Controllers
     {
         private readonly ICategorieRepository _categorieRepository;
         private readonly INotificationContext _notificationContext;
-
-        public CategorieController(ICategorieRepository categorieRepository, INotificationContext notificationContext) : base (notificationContext)
+        private readonly IMapper _mapper;
+        public CategorieController(ICategorieRepository categorieRepository, IMapper mapper,INotificationContext notificationContext) : base (notificationContext)
         {
             _categorieRepository = categorieRepository;
+            _mapper = mapper;
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreateCategorie(Categorie categorie)
+        public async Task<IActionResult> CreateCategorie(CategorieViewModel categorie)
         {
-            if (categorie != null)
-                await _categorieRepository.CreateCategory(categorie);
+            var maped = _mapper.Map<Categorie>(categorie);
+
+            if (!maped.IsValid)
+                return BadRequest(maped.Erros);
+
+
+
+            await _categorieRepository.CreateCategory(maped);
 
             return Response(categorie);
         }

@@ -13,13 +13,13 @@ namespace WebApiBestBuy.Api.ExtensionServices
 {
     public static class ExtensionDI
     {
-        public static IServiceCollection ConfigureServices(IServiceCollection Services, IConfiguration configuration)
+        public static IServiceCollection ConfigureServices(this IServiceCollection Services, IConfiguration configuration)
         {
             Services.Configure<DatabaseConfig>(configuration.GetSection("ConnectionStrings"));
-
             Services.AddDbContext<AppDbContext>(x => x.UseSqlServer(configuration["ConnectionStrings:ConnectionStringEscrita"]));
-
-
+            Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
+           
+            Services.AddScoped<IUnitOfWork, UnitOfWork>();
             Services.AddScoped<IUserService, UserService>();
             Services.AddScoped<INotificationContext, NotificationContext>();
             Services.AddScoped<IProductRepository, ProductRepository>();

@@ -1,25 +1,24 @@
-
 using System.Text;
+using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using WebApiBestBuy.Api.ExtensionServices;
 using WebApiBestBuy.Domain.Interfaces;
+using WebApiBestBuy.DTOS;
 using WebApiBestBuy.Infra.Data;
 using WebApiBestBuy.Infra.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-ExtensionDI.ConfigureServices(builder.Services,builder.Configuration);
+builder.Services.ConfigureServices(builder.Configuration);
 
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
 
 #region JwtBearer
 
@@ -126,6 +125,11 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 #endregion
+
+
+IMapper mapper = Config.RegisterMaps().CreateMapper();
+builder.Services.AddSingleton(mapper);
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
 

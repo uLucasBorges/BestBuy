@@ -76,19 +76,24 @@ namespace WebApiBestBuy.Infra.Repositories
                 if (result == -1) { 
                 _notificationContext.AddNotification(404, "Produto não encontrado");
                 return false;
+
                 }
 
                 return true;
                 }  
             }
 
-
+        /// <summary>
+        ///  Verifica se o carrinho existe
+        /// </summary>
+        /// <param name="cartID"></param>
+        /// <returns> Retorna true caso exista, false caso não exista</returns>
         public async Task<bool> ExistCart(string cartID)
         {
             using (var context = _context)
             {
 
-                var query = "select * from cart where Id = @cartID";
+                var query = "select top 1 1 from cart where Id = @cartID";
 
                 _context.Begin();
 
@@ -122,10 +127,10 @@ namespace WebApiBestBuy.Infra.Repositories
                 var controle = 0.0;
 
                
-                    foreach(ProductViewModel obj in productsInCart)
-                    {
+                foreach(ProductViewModel obj in productsInCart)
+                {
                         controle += obj.ValueTotal;
-                    }
+                }
 
                 if (existsCoupon.Success)
                 {
@@ -217,7 +222,7 @@ namespace WebApiBestBuy.Infra.Repositories
                 
 
 
-                await context.connection.ExecuteAsync(query, new { cartId = CartId, productId = ProductId, amountInsert = AmountInsert }, transaction: _context.transaction);
+                await context.connection.ExecuteAsync(query, new {CartId, ProductId, AmountInsert }, transaction: _context.transaction);
                 
                 context.Commit();
 

@@ -59,7 +59,7 @@ public class CategorieRepository : ICategorieRepository
                     };
 
 
-                _notificationContext.AddNotification(404, "Categoria não encontrado");
+                _notificationContext.AddNotification(404, "Categoria não encontrada");
                 return new ResultViewModel();
             }
         }
@@ -68,11 +68,11 @@ public class CategorieRepository : ICategorieRepository
         {
             var existsProduct = await GetCategorie(id);
 
-            if (!existsProduct.Success)
+            if (_notificationContext.HasNotifications())
             {
-                _notificationContext.AddNotification(404, "Categoria inexistente");
                 return false;
             }
+
             try
             {
                 using (var connection =  new SqlConnection(ConnectionStringEscrita))
@@ -83,6 +83,7 @@ public class CategorieRepository : ICategorieRepository
                     {
                         Id = id
                     });
+
                 connection.Dispose();
 
 
@@ -90,7 +91,7 @@ public class CategorieRepository : ICategorieRepository
                 }
             } catch (Exception ex)
             {
-                _notificationContext.AddNotification(400, "existe carrinhos com esse produto");
+                _notificationContext.AddNotification(400, "existe carrinhos com produtos que são desta categoria");
                 return false;
             }
         }

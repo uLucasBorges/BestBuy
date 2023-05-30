@@ -145,6 +145,7 @@ namespace WebApiBestBuy.Infra.Repositories;
                         imageUrl = product.ImageUrl ?? existsProduct.Data.ImageUrl
 
                     }) ;;
+
                 connection.Dispose();
 
                 if (result == -1)
