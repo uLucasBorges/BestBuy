@@ -25,12 +25,20 @@ namespace WebApiBestBuy.Infra.Data
 
         public void Begin()
         {
-            if (connection != null)
+            if (connection?.State == ConnectionState.Closed) {
+                connection.Open();
+                transaction = connection.BeginTransaction();
                 return;
 
-            connection = new SqlConnection(_dbConfig.ConnectionStringEscrita);
-            connection.Open();
-            transaction = connection.BeginTransaction();
+            }
+
+            if (connection == null)
+            {
+                connection = new SqlConnection(_dbConfig.ConnectionStringEscrita);
+                connection.Open();
+                transaction = connection.BeginTransaction();
+                return;
+            }
 
         }
 

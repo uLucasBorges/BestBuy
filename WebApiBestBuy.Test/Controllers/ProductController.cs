@@ -1,5 +1,6 @@
 ﻿
 using System.ComponentModel;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -17,17 +18,19 @@ namespace WebApiBestBuy.Test.Controllers
         private readonly MockRepository mockRepository;
         private readonly Mock<IProductRepository> mockProductRepository;
         private readonly Mock<INotificationContext> mockNotificationContext;
+        private readonly Mock<IWebHostEnvironment> mockEnviroment;
 
         public ProductControllerTests()
         {
             this.mockRepository = new MockRepository(MockBehavior.Loose);
             this.mockProductRepository = mockRepository.Create<IProductRepository>();
             this.mockNotificationContext = this.mockRepository.Create<INotificationContext>();
+            this.mockEnviroment = this.mockRepository.Create<IWebHostEnvironment>();
         }
 
         public ProductController createController()
         {
-            return new ProductController(mockProductRepository.Object, mockNotificationContext.Object);
+            return new ProductController(mockProductRepository.Object, mockEnviroment.Object,mockNotificationContext.Object);
         }
 
         //public Product createProductValid() => new Product(0, "Playstation 5", 1500.0, "VideoGame de ultima geração", 3, "testando.com");
