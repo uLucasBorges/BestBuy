@@ -89,10 +89,6 @@ namespace WebApiBestBuy.Api.Controllers
                 fileDI.Delete();
             }
 
-         
-
-
-
 
             return Response();
         }

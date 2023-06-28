@@ -133,9 +133,14 @@ namespace WebApiBestBuy.Infra.Repositories
                         controle += obj.ValueTotal;
                 }
 
+               var teste = productsInCart.Sum(x => x.ValueTotal);
+                //verificar se é o mesmo resultado do foreach
+
+              )
+
                 if (existsCoupon.Success)
                 {
-                    controle -= existsCoupon.Data.DiscountAmount;
+                    controle -=existsCoupon.Data.DiscountAmount;
 
                     if (controle < 0)
                         controle = 0;
@@ -170,7 +175,7 @@ namespace WebApiBestBuy.Infra.Repositories
                     }, transaction: _context.transaction, commandType: CommandType.StoredProcedure);
 
 
-                context.Rollback();
+                context.Commit();
 
 
         
