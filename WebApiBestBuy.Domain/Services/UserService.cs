@@ -10,6 +10,7 @@ using AutoMapper;
 using WebApiBestBuy.Domain.Models;
 using System.Text.Unicode;
 using System;
+using WebApiBestBuy.Domain.Interfaces.Services;
 
 namespace WebApiBestBuy.Domain.Services;
 
@@ -66,8 +67,7 @@ public class UserService : IUserService
         return new Register
         {
             Registered = !_notificationContext.HasNotifications(),
-            UserAccount = user.UserName,
-            Message =  "Usuário cadastrado com sucesso."
+            UserAccount = user.UserName
         };
 
             

@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using WebApiBestBuy.Domain.Models;
+using WebApiBestBuy.Domain.Interfaces.Repositories;
+using WebApiBestBuy.Domain.Interfaces.Services;
 
 namespace WebApiBestBuy.Api.ExtensionServices
 {
@@ -20,7 +22,7 @@ namespace WebApiBestBuy.Api.ExtensionServices
             Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
            
             Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            Services.AddScoped<IUserService, UserService>();
+            Services.AddScoped<ICartService, CartService>();
             Services.AddScoped<INotificationContext, NotificationContext>();
             Services.AddScoped<IProductRepository, ProductRepository>();
             Services.AddScoped<ICartRepository, CartRepository>();

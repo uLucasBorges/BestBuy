@@ -1,4 +1,5 @@
 ﻿using WebApiBestBuy.Domain.Interfaces;
+using WebApiBestBuy.Domain.Interfaces.Repositories;
 using WebApiBestBuy.Domain.Notifications;
 
 namespace WebApiBestBuy.Infra.Repositories

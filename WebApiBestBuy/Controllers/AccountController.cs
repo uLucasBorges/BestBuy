@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WebApiBestBuy.Api.Controllers;
+using WebApiBestBuy.Domain.Interfaces.Services;
 using WebApiBestBuy.Domain.Models;
 using WebApiBestBuy.Domain.Notifications;
-using WebApiBestBuy.Domain.Services;
 
 namespace WebApiBestBuy.Controllers
 {

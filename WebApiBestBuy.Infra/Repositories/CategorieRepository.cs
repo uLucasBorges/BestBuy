@@ -1,10 +1,10 @@
-﻿using WebApiBestBuy.Domain.Interfaces;
-using Dapper;
+﻿using Dapper;
 using WebApiBestBuy.Domain.Models;
 using WebApiBestBuy.Domain.ViewModel;
 using WebApiBestBuy.Domain.Notifications;
 using Microsoft.Extensions.Options;
 using Microsoft.Data.SqlClient;
+using WebApiBestBuy.Domain.Interfaces.Repositories;
 
 namespace WebApiBestBuy.Infra.Repositories;
 
@@ -21,79 +21,71 @@ public class CategorieRepository : ICategorieRepository
             _notificationContext = notificationContext;
         }
 
-        public async Task<Categorie> CreateCategory(Categorie categorie)
+        public async Task CreateCategory(Categorie categorie)
         {
-            using (var connection =  new SqlConnection(ConnectionStringEscrita))
+        try {
+            using (var connection = new SqlConnection(ConnectionStringEscrita))
             {
-              connection.Open();
+                connection.Open();
 
-            var query = "INSERT INTO [dbo].[CategoriasAprendiz] (CategoriaNome, Descricao) VALUES (@name, @descricao)";
-                var result = await connection.ExecuteAsync(query, new { name = categorie.Name, descricao = categorie.Descricao });
+                var query = @"INSERT INTO [dbo].[CategoriasAprendiz]
+                            (CategoriaNome, Descricao) VALUES (@name, @descricao)";
 
-            connection.Dispose();
+                await connection.ExecuteAsync(query, new { name = categorie.Name, descricao = categorie.Descricao });
 
-            if (result == -1)
-                    _notificationContext.AddNotification(400, "Erro ao criar a categoria");
-
-                else
-                    _notificationContext.AddNotification(201, "categoria criada com sucesso!");
-
-                return categorie;
+                connection.Dispose();
             }
+            } catch (Exception e)
+        {
+            _notificationContext.AddNotification(500, e.Message);
+        }
         }
 
-        public async Task<ResultViewModel> GetCategorie(int Id)
+        public async Task<ResultViewModel> GetCategorie(string categoriaNome)
         {
             using (var connection =  new SqlConnection(ConnectionStringEscrita))
             {
-                var query = "SELECT *  FROM [clearsale].[dbo].[CategoriasAprendiz]\r\n  WHERE CategoriaId = @Id";
-                var result = (await connection.QueryAsync<Categorie>(query, new { id = Id })).FirstOrDefault();
+                var query = @"SELECT *  FROM [clearsale].[dbo].[CategoriasAprendiz]
+                             WHERE CategoriaNome = @categoriaNome";
+                var result = (await connection.QueryAsync<Categorie>(query, new { CategoriaNome = categoriaNome })).FirstOrDefault();
                 connection.Dispose();
 
             if (result != null)
 
-                    return new ResultViewModel
-                    {
-                        Data = result,
-                        Success = true
-                    };
+             return new ResultViewModel
+             {
+                 Data = result,
+                 Success = true
+             };
 
 
-                _notificationContext.AddNotification(404, "Categoria não encontrada");
-                return new ResultViewModel();
+            _notificationContext.AddNotification(404, "Categoria não encontrada");
+            return new ResultViewModel();
             }
         }
 
-        public async Task<bool> DeleteCategory(int id)
+        public async Task DeleteCategory(int id)
         {
-            var existsProduct = await GetCategorie(id);
-
-            if (_notificationContext.HasNotifications())
-            {
-                return false;
-            }
-
+           
             try
             {
                 using (var connection =  new SqlConnection(ConnectionStringEscrita))
                 {
-                    var query = "DELETE FROM [dbo].[CategoriasAprendiz]\r\n      WHERE CategoriaId =  @id";
+                    var query = @"DELETE FROM [dbo].[CategoriasAprendiz]
+                                  WHERE CategoriaId =  @id";
 
                     await connection.ExecuteAsync(query, new
                     {
                         Id = id
                     });
 
-                connection.Dispose();
+                  connection.Dispose();
 
-
-                return true;
                 }
-            } catch (Exception ex)
+            } catch (Exception e)
             {
-                _notificationContext.AddNotification(400, "existe carrinhos com produtos que são desta categoria");
-                return false;
+                  _notificationContext.AddNotification(500, e.Message);
             }
-        }
+    }
     }
 

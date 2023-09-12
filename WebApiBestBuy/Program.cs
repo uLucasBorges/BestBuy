@@ -49,22 +49,17 @@ builder.Services.AddAuthentication(x =>
 
 builder.Services.AddAuthorization(x =>
 {
-    x.AddPolicy("Dev", policy =>
-    {
-        policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
-        policy.RequireRole("Dev");
-    });
 
     x.AddPolicy("Admin", policy =>
     {
         policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
-        policy.RequireRole("Admin");
+        policy.RequireRole("Admin","Dev");
     });
 
-    x.AddPolicy("Member", policy =>
+    x.AddPolicy("Client", policy =>
     {
         policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
-        policy.RequireRole("Member");
+        policy.RequireRole("Client");
     });
 
 });
@@ -127,9 +122,12 @@ builder.Services.AddSwaggerGen(c =>
 #endregion
 
 
+#region Mapper
 IMapper mapper = Config.RegisterMaps().CreateMapper();
 builder.Services.AddSingleton(mapper);
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+#endregion
+
 
 var app = builder.Build();
 

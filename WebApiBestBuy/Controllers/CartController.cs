@@ -1,60 +1,55 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.AspNetCore.Mvc;
 using WebApiBestBuy.Domain.Interfaces;
+using WebApiBestBuy.Domain.Interfaces.Repositories;
+using WebApiBestBuy.Domain.Interfaces.Services;
 using WebApiBestBuy.Domain.Notifications;
 using WebApiBestBuy.Domain.ViewModel;
 namespace WebApiBestBuy.Api.Controllers
 {
     [Route("[Controller]")]
+    [Authorize]
     public class CartController : BaseController
     {
-        private readonly ICartRepository cartRepository;
-        private readonly INotificationContext notificationContext;
-        private readonly IUnitOfWork _unitOfWork;
+         private readonly ICartService _cartService;
 
-        public CartController(ICartRepository cartRepository, INotificationContext notificationContext, IUnitOfWork unitOfWork) : base(notificationContext)
+        public CartController(ICartService cartService, INotificationContext notificationContext) : base (notificationContext)
         {
-            this.cartRepository = cartRepository;
-            _unitOfWork = unitOfWork;
+            _cartService = cartService;
         }
 
-        [HttpDelete("Remove/Product")]
-        public async Task<IActionResult> DeleteProductsInCart(int productId, int quantityAmount)
+        
+        [HttpGet("Products/Remove")]
+        public async Task<IActionResult> DeleteProductsInCart(int productId, int quantity)
         {
             var cartId = base.CreateCartId();
 
-            var exists = await cartRepository.ExistCart(cartId);
-
-            if(exists)
-            await cartRepository.RemoveProductCart(productId, quantityAmount, cartId);
+            await _cartService.RemoveProductCart(productId, quantity, cartId);
 
             return Response();
         }
 
 
-        [HttpPost("Add/Product")]
+        [HttpPost("Products/Add")]
         public async Task<IActionResult> IncluirCarrinho(int ProductId, int Quantity)
         {
             var cartId = CreateCartId();
 
-            await cartRepository.InsertOrUpdate(cartId, ProductId, Quantity);
+            await _cartService.InsertOrUpdate(cartId, ProductId, Quantity);
 
             return Response();
         }
 
 
         [HttpGet("List/Products")]
-        public async Task<IActionResult> GetProductsInCaty()
+        public async Task<IActionResult> GetProductsInCart()
         {
             var cartId = base.CreateCartId();
 
-            var exists = await _unitOfWork.CartRepository.ExistCart(cartId);
+            var products = await _cartService.GetProductsByCart(cartId);
 
-            if (!exists) 
-                return NotFound(new ResultViewModel { Success = false, Data = "O Carrinho está vazio!" });
-
-            var products = await cartRepository.GetProductsByCart(cartId);
-        
-            return Ok(products);
+            return Response(products);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿
 
 using System.Data;
+using WebApiBestBuy.Domain.Interfaces.Repositories;
 
 namespace WebApiBestBuy.Domain.Interfaces
 {

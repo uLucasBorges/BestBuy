@@ -1,24 +1,26 @@
 ﻿using WebApiBestBuy.Domain.Notifications;
 using Microsoft.AspNetCore.Mvc;
-using WebApiBestBuy.Domain.Interfaces;
 using WebApiBestBuy.Domain.Models;
 using AutoMapper;
 using WebApiBestBuy.Domain.ViewModel;
 using System.Text.Unicode;
 using System.Text;
 using static System.Net.Mime.MediaTypeNames;
+using WebApiBestBuy.Domain.Interfaces.Repositories;
+using WebApiBestBuy.Domain.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApiBestBuy.Api.Controllers
 {
     [Route("[Controller]")]
+    [Authorize("Admin")]
     public class CategorieController : BaseController
     {
-        private readonly ICategorieRepository _categorieRepository;
-        private readonly INotificationContext _notificationContext;
+        private readonly ICategorieService _categorieService;
         private readonly IMapper _mapper;
-        public CategorieController(ICategorieRepository categorieRepository, IMapper mapper,INotificationContext notificationContext) : base (notificationContext)
+        public CategorieController(ICategorieService categorieService, IMapper mapper,INotificationContext notificationContext) : base (notificationContext)
         {
-            _categorieRepository = categorieRepository;
+            _categorieService = categorieService;
             _mapper = mapper;
         }
 
@@ -31,8 +33,7 @@ namespace WebApiBestBuy.Api.Controllers
                 return BadRequest(maped.Erros);
 
 
-
-            await _categorieRepository.CreateCategory(maped);
+            await _categorieService.CreateCategory(maped);
 
             return Response(categorie);
         }
@@ -41,8 +42,8 @@ namespace WebApiBestBuy.Api.Controllers
         [HttpDelete("delete")]
         public async Task<IActionResult> DeleteCategorie(int id)
         {
-           
-            await _categorieRepository.DeleteCategory(id);
+           if(id != 0)
+            await _categorieService.DeleteCategory(id);
             
             return Response();
             

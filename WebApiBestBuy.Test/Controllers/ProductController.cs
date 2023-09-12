@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using WebApiBestBuy.Api.Controllers;
-using WebApiBestBuy.Domain.Interfaces;
+using WebApiBestBuy.Domain.Interfaces.Repositories;
+using WebApiBestBuy.Domain.Interfaces.Services;
 using WebApiBestBuy.Domain.Models;
 using WebApiBestBuy.Domain.Notifications;
 using WebApiBestBuy.Domain.ViewModel;
@@ -16,27 +17,26 @@ namespace WebApiBestBuy.Test.Controllers
     {
 
         private readonly MockRepository mockRepository;
-        private readonly Mock<IProductRepository> mockProductRepository;
+        private readonly Mock<IProductService> mockProductService;
         private readonly Mock<INotificationContext> mockNotificationContext;
-        private readonly Mock<IWebHostEnvironment> mockEnviroment;
 
         public ProductControllerTests()
         {
             this.mockRepository = new MockRepository(MockBehavior.Loose);
-            this.mockProductRepository = mockRepository.Create<IProductRepository>();
+            this.mockProductService = mockRepository.Create<IProductService>();
             this.mockNotificationContext = this.mockRepository.Create<INotificationContext>();
-            this.mockEnviroment = this.mockRepository.Create<IWebHostEnvironment>();
         }
 
         public ProductController createController()
         {
-            return new ProductController(mockProductRepository.Object, mockEnviroment.Object,mockNotificationContext.Object);
+            return new ProductController(mockProductService.Object, mockNotificationContext.Object);
         }
 
+
         //public Product createProductValid() => new Product(0, "Playstation 5", 1500.0, "VideoGame de ultima geração", 3, "testando.com");
-        
+
         //public Product createProductInvalid() =>  new Product();
-        
+
 
 
 
@@ -49,9 +49,9 @@ namespace WebApiBestBuy.Test.Controllers
             var result = (ObjectResult)await productControler.GetProducts();
 
 
-            mockProductRepository.Setup(x => x.GetProducts()).ReturnsAsync(new ResultViewModel { Success  = true}).Verifiable();
+            mockProductService.Setup(x => x.GetProducts()).ReturnsAsync(new ResultViewModel { Success = true }).Verifiable();
 
-            mockProductRepository.Verify(x => x.GetProducts(), Times.Once);
+            mockProductService.Verify(x => x.GetProducts(), Times.Once);
 
 
             Assert.Equal(200, result.StatusCode);
@@ -69,9 +69,9 @@ namespace WebApiBestBuy.Test.Controllers
             var result = (ObjectResult)await productController.GetProduct(ID);
 
 
-            mockProductRepository.Setup(x => x.GetProduct(ID)).ReturnsAsync(new ResultViewModel { Success = true }).Verifiable();
+            mockProductService.Setup(x => x.GetProduct(ID)).ReturnsAsync(new ResultViewModel { Success = true }).Verifiable();
 
-            mockProductRepository.Verify(x => x.GetProduct(ID), Times.Once);
+            mockProductService.Verify(x => x.GetProduct(ID), Times.Once);
 
 
             Assert.Equal(200, result.StatusCode);
@@ -89,9 +89,9 @@ namespace WebApiBestBuy.Test.Controllers
 
             var result = (ObjectResult)await productController.CreateProduct(product);
 
-            mockProductRepository.Setup(x => x.CreateProduct(product)).ReturnsAsync(new Product()).Verifiable();
+            mockProductService.Setup(x => x.CreateProduct(product)).ReturnsAsync(new Product()).Verifiable();
 
-            mockProductRepository.Verify(x => x.CreateProduct(product), Times.Once);
+            mockProductService.Verify(x => x.CreateProduct(product), Times.Once);
 
 
             Assert.Equal(result.StatusCode, StatusCodes.Status200OK);
@@ -104,14 +104,15 @@ namespace WebApiBestBuy.Test.Controllers
         public async Task Deve_Retornar_200_Atualizacao_Produto()
         {
             var product = new Product(0, "Playstation 5", 1500.0, "VideoGame de ultima geração", 3, "testando.com");
+            var newProduct = new Product(0, "Playstation 5", 1500.0, "VideoGame de ultima geração", 3, "testando.com");
 
             var productController = this.createController();
 
-            var result = (ObjectResult) await productController.UpdateProducts(product);
+            var result = (ObjectResult)await productController.UpdateProducts(product);
 
-            mockProductRepository.Setup(x => x.UpdateProduct(product)).ReturnsAsync(new ResultViewModel { Success = true }).Verifiable();
+            mockProductService.Setup(x => x.UpdateProduct(product))/*.ReturnsAsync(new ResultViewModel { Success = true })*/.Verifiable();
 
-            mockProductRepository.Verify(x => x.UpdateProduct(product), Times.Once);
+            mockProductService.Verify(x => x.UpdateProduct(product), Times.Once);
 
             Assert.Equal(200, result.StatusCode);
 
@@ -126,12 +127,14 @@ namespace WebApiBestBuy.Test.Controllers
             var result = (ObjectResult)await product.DeleteProducts(1);
 
 
-            mockProductRepository.Setup(x => x.DeleteProduct(1)).ReturnsAsync(true).Verifiable();
+            mockProductService.Setup(x => x.DeleteProduct(1))/*.ReturnsAsync(true).Verifiable()*/;
 
-            mockProductRepository.Verify(x => x.DeleteProduct(1), Times.Once);
+            mockProductService.Verify(x => x.DeleteProduct(1), Times.Once);
 
             Assert.Equal(200, result.StatusCode);
 
         }
     }
 }
+
+

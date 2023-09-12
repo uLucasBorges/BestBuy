@@ -1,15 +1,15 @@
-﻿using WebApiBestBuy.Domain.Interfaces;
-using WebApiBestBuy.Domain.Notifications;
+﻿using WebApiBestBuy.Domain.Notifications;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using WebApiBestBuy.Infra.Data;
 using WebApiBestBuy.Domain.Models;
 using WebApiBestBuy.Domain.ViewModel;
 using Microsoft.Extensions.Options;
+using WebApiBestBuy.Domain.Interfaces.Repositories;
 
 namespace WebApiBestBuy.Infra.Repositories;
 
-    public class ProductRepository : IProductRepository
+public class ProductRepository : IProductRepository
     {
         private string ConnectionStringEscrita { get; }
         private readonly INotificationContext _notificationContext;
@@ -38,12 +38,6 @@ namespace WebApiBestBuy.Infra.Repositories;
 
             connection.Dispose();
 
-            if (result == -1)
-                _notificationContext.AddNotification(400, "Erro ao criar o produto");
-
-            else
-                _notificationContext.AddNotification(201, "Produto criado com sucesso!");
-
         }   
 
             return product;
@@ -52,14 +46,7 @@ namespace WebApiBestBuy.Infra.Repositories;
 
         public async Task<bool> DeleteProduct(int id)
         {
-           var existsProduct = await GetProduct(id);
-
-           if(!existsProduct.Success)
-            {
-                _notificationContext.AddNotification(404, "Produto inexistente");
-                return false;
-            }
-
+       
             using (var connection =  new SqlConnection(ConnectionStringEscrita))
             {
                 var query = "DELETE FROM [dbo].[Products]  WHERE Id = @id";
@@ -84,16 +71,10 @@ namespace WebApiBestBuy.Infra.Repositories;
                 var query = "SELECT * FROM Products WHERE id = @Id";
                 var result = (await connection.QueryAsync<Product>(query, new { id = Id })).FirstOrDefault() ;
 
-            connection.Dispose();
+               connection.Dispose();
+            
+               return new ResultViewModel(result, result.IsValid);
 
-            if (result != null)
-
-             return new ResultViewModel(result, true);
-                   
-
-
-                   _notificationContext.AddNotification(404, "Produto não encontrado");
-                   return new ResultViewModel();
             }
         }
 
@@ -118,15 +99,12 @@ namespace WebApiBestBuy.Infra.Repositories;
             }
         }
 
-        public async Task<ResultViewModel> UpdateProduct(Product product)
-        {
-            var existsProduct = await GetProduct(product.Id);
+    public async Task<ResultViewModel> UpdateProduct(Product product, Product existsProduct)
+    {
 
-            if(existsProduct.Success)
-            {
-                using (var connection =  new SqlConnection(ConnectionStringEscrita))
-                {
-                    var query = @"UPDATE Products
+        using (var connection = new SqlConnection(ConnectionStringEscrita))
+        {
+            var query = @"UPDATE Products
                        SET
                        Name = @name,
                        Price = @price,
@@ -135,33 +113,36 @@ namespace WebApiBestBuy.Infra.Repositories;
                        ImageURL = @imageUrl
                        WHERE id = @id";
 
-                    var result = await connection.ExecuteAsync(query, new
-                    {
-                        id = product.Id,
-                        name = product.Name ?? existsProduct.Data.Name,
-                        price = product.Price == 0.0 ? existsProduct.Data.Price : product.Price,
-                        description = product.Description ?? existsProduct.Data.Description,
-                        categoryId = existsProduct.Data.CategoryId == 0 ?  product.CategoryId : existsProduct.Data.CategoryId,
-                        imageUrl = product.ImageUrl ?? existsProduct.Data.ImageUrl
+            var result = await connection.ExecuteAsync(query, new
+            {
+                id = product.Id,
+                name = product.Name ?? existsProduct.Name,
+                price = product.Price == 0.0 ? existsProduct.Price : product.Price,
+                description = product.Description ?? existsProduct.Description,
+                categoryId = existsProduct.CategoryId == 0 ? product.CategoryId : existsProduct.CategoryId,
+                imageUrl = product.ImageUrl ?? existsProduct.ImageUrl
 
-                    }) ;;
+            }); ;
 
-                connection.Dispose();
+            connection.Dispose();
 
-                if (result == -1)
-                    {
-                        _notificationContext.AddNotification(400, "não foi possivel atualizar o produto");
-                        return new ResultViewModel { Success = false, Data = product };
-                    }
-                    else
-                        return new ResultViewModel { Success = true, Data = product };
-                }
-            }
+        }
 
-            _notificationContext.AddNotification(404, "Produto não encontrado");
+        return new ResultViewModel { Success = true, Data = product };
 
-            return new ResultViewModel { Success = false , Data = product};
-            
+    }
+
+    public async Task<bool> ExistsProduct(int ProducId)
+    {
+       using (var connection = new SqlConnection(ConnectionStringEscrita))
+        {
+            var query = @"SELECT TOP 1 1 FROM PRODUCTS
+                          WHERE id = @ProducId";
+
+           return (await connection.QueryAsync<bool>(query, new { ProducId })).FirstOrDefault();
+
         }
     }
+}
+    
 

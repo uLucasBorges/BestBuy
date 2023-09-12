@@ -2,7 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using WebApiBestBuy.Api.Controllers;
-using WebApiBestBuy.Domain.Interfaces;
+using WebApiBestBuy.Domain.Interfaces.Repositories;
+using WebApiBestBuy.Domain.Interfaces.Services;
 using WebApiBestBuy.Domain.Models;
 using WebApiBestBuy.Domain.Notifications;
 
@@ -12,17 +13,17 @@ namespace WebApiBestBuy.Test.Controllers
     {
         private readonly MockRepository mockRepository;
         private readonly Mock<INotificationContext> mockNotificationContext;
-        private readonly Mock<ICouponRepository> mockCouponRepository;
+        private readonly Mock<ICouponService> mockCouponService;
 
         public CouponControllerTest()
         {   mockRepository = new MockRepository(MockBehavior.Loose);
-            mockCouponRepository = mockRepository.Create<ICouponRepository>();
+            mockCouponService = mockRepository.Create<ICouponService>();
             mockNotificationContext = mockRepository.Create<INotificationContext>();
         }
 
         public CouponController createController()
         {
-            return new CouponController(mockCouponRepository.Object, mockNotificationContext.Object);
+            return new CouponController(mockCouponService.Object, mockNotificationContext.Object);
         }
 
         [Fact]
@@ -34,8 +35,8 @@ namespace WebApiBestBuy.Test.Controllers
             var controller = createController();
             var result = (ObjectResult) await controller.CreateCoupon(coupon);
 
-            mockCouponRepository.Setup(x => x.CreateCoupon(coupon)).ReturnsAsync(new Coupon { CouponCode = coupon.CouponCode , DiscountAmount = coupon.DiscountAmount });
-            mockCouponRepository.Verify(x => x.CreateCoupon(coupon), Times.Once);
+            mockCouponService.Setup(x => x.CreateCoupon(coupon));/*.ReturnsAsync(new Coupon { CouponCode = coupon.CouponCode , DiscountAmount = coupon.DiscountAmount });*/
+            mockCouponService.Verify(x => x.CreateCoupon(coupon), Times.Once);
 
             Assert.Equal(200, result.StatusCode);
         }

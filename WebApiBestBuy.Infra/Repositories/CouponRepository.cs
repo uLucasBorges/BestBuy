@@ -1,15 +1,15 @@
-﻿using WebApiBestBuy.Domain.Interfaces;
-using WebApiBestBuy.Domain.Notifications;
+﻿using WebApiBestBuy.Domain.Notifications;
 using WebApiBestBuy.Infra.Data;
 using WebApiBestBuy.Domain.Models;
 using WebApiBestBuy.Domain.ViewModel;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
+using WebApiBestBuy.Domain.Interfaces.Repositories;
 
 namespace WebApiBestBuy.Infra.Repositories;
 
-    public class CouponRepository : ICouponRepository
+public class CouponRepository : ICouponRepository
     {
     private string   ConnectionStringEscrita { get; }
     private readonly INotificationContext _notificationContext;
@@ -24,26 +24,13 @@ namespace WebApiBestBuy.Infra.Repositories;
         {
             using (var connection =  new SqlConnection(ConnectionStringEscrita))
             {
-                if (!string.IsNullOrEmpty(CartId) && !string.IsNullOrWhiteSpace(CouponCode))
-                {
-                    var coupon = await ExistsCoupon(CouponCode);
-
-                    if (!coupon.Success)
-                    {
-                        return false;
-                    }
-
                     var query = "INSERT CartHeaders (UserId,CouponCode) values (@cartId, @couponCode)";
-                    await connection.ExecuteAsync(query, new { cartId = CartId, couponCode = coupon.Data.CouponCode });
+                    await connection.ExecuteAsync(query, new { cartId = CartId, couponCode = CouponCode });
 
-                connection.Dispose();
+                    connection.Dispose();
 
 
-                _notificationContext.AddNotification(200, "Cupom Aplicado");
-                    return true;
-                }
-
-                return false;
+               return true;
             }
         }
 
@@ -75,70 +62,88 @@ namespace WebApiBestBuy.Infra.Repositories;
             }
         }
 
-        public async Task<ResultViewModel> ExistsCoupon(string? couponCode)
+        public async Task<bool> ExistsCoupon(string? couponCode)
         {
             using (var connection =  new SqlConnection(ConnectionStringEscrita))
             {
                 connection.Open();
-                var query = "SELECT CouponCode, DiscountAmount FROM Coupon WHERE CouponCode = @couponCode";
+                var query = "IF EXISTS (SELECT TOP 1 1 FROM Coupon WHERE CouponCode = @couponCode) SELECT 1 ELSE SELECT 0";
 
           
-                var result = (await connection.QueryAsync<Coupon>(query, new { CouponCode = couponCode})).FirstOrDefault();
+                var result = (await connection.QueryAsync<bool>(query, new { CouponCode = couponCode})).FirstOrDefault();
                 connection.Dispose();
 
-            if (result != null)
-                {
-                    return new ResultViewModel(result, true, "Cupom Encontrado com Succeso");
-                }
+            if (result)
+                return true; 
 
-                _notificationContext.AddNotification(404, "Cupom inexistente");
-
-            return new ResultViewModel(new Coupon(), false, "Cupom não  existentente");
+            _notificationContext.AddNotification(404, "Cupom inexistente");
+                return false;
 
             }
         }  
         
         
-        public async Task<ResultViewModel> CartHaveCoupon(string userid)
+        public async Task<bool> CartHaveCoupon(string userid)
         {
             using (var connection =  new SqlConnection(ConnectionStringEscrita))
             {
                 connection.Open();
                 
-                 var query = "\r\nSELECT ch.CouponCode , c.DiscountAmount from CartHeaders ch inner join Coupon c on c.CouponCode = ch.CouponCode\r\n and ch.UserId = @userid";
+                 var query = @"IF EXISTS(SELECT ch.CouponCode , c.DiscountAmount 
+                              from CartHeaders ch 
+                              inner join Coupon c on c.CouponCode = ch.CouponCode 
+                              and ch.UserId = @userid) SELECT 1 ELSE SELECT 0";
 
-                var result = (await connection.QueryAsync<Coupon>(query, new {UserId = userid}))?.FirstOrDefault();
-                connection.Dispose();
+                var result = (await connection.QueryAsync<bool>(query, new {UserId = userid})).FirstOrDefault();
+               
+               connection.Dispose();
+               
+               if (result)
+               return true;
 
-            if (result != null)
-                {
-                    _notificationContext.AddNotification(200, "Carrinho já possui Cupom");
 
-                   return new ResultViewModel(result, true, "Carrinho já possui Cupom");
-                }
-
-            return new ResultViewModel(new Coupon(), false, "Carrinho não possui Cupom");
-
-            }
+               return false;
+ 
         }
+    }
 
         public async Task<bool> RemoveCoupon(string userid)
         {
-            if (String.IsNullOrEmpty(userid))
-                return false;
-
+         
             using (var connection =  new SqlConnection(ConnectionStringEscrita))
             {
-              connection.Dispose();
 
             var query = "delete from CartHeaders  where UserId = @userid";
-                var result = await connection.ExecuteAsync(query, new
+               
+            
+            var result = await connection.ExecuteAsync(query, new
                 {
                     UserId = userid
                 });
 
-                return true;
+            connection.Dispose();
+
+            return true;
             }
         }
+
+    public async Task<Coupon> GetCouponByCart(string UserId)
+    {
+       using(var connection = new SqlConnection(ConnectionStringEscrita))
+        {
+            connection.Open();
+
+            var query = @"SELECT
+                          C.CouponCode,
+                          C.DiscountAmount
+                          FROM [clearsale].[dbo].[CartHeaders] CH
+                          INNER JOIN COUPON C ON C.COUPONCODE = CH.COUPONCODE
+                          WHERE [UserId] = @UserId";
+
+            var searchedCoupon = (await connection.QueryAsync<Coupon>(query, new { UserId = UserId })).FirstOrDefault();
+            
+            return searchedCoupon;
+        }
     }
+}
 

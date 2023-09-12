@@ -1,94 +1,28 @@
-﻿using WebApiBestBuy.Domain.Interfaces;
-using WebApiBestBuy.Domain.Models;
+﻿using WebApiBestBuy.Domain.Models;
 using Dapper;
 using WebApiBestBuy.Domain.ViewModel;
 using WebApiBestBuy.Domain.Notifications;
 using Microsoft.IdentityModel.Tokens;
 using WebApiBestBuy.Infra.Data;
 using System.Data;
+using WebApiBestBuy.Domain.Interfaces.Repositories;
 
 namespace WebApiBestBuy.Infra.Repositories
 {
     public class CartRepository : ICartRepository
     {
         private readonly AppDbContext _context;
-        private readonly ICouponRepository _couponRepository;
-        private readonly IProductRepository _productRepository;
         private readonly INotificationContext _notificationContext;
 
-        public CartRepository(AppDbContext context, ICouponRepository couponRepository, IProductRepository productRepository, INotificationContext notificationContext)
+        public CartRepository(AppDbContext context, INotificationContext notificationContext)
         {
             _context = context;
-            _productRepository = productRepository;
             _notificationContext = notificationContext;
-            _couponRepository = couponRepository;
         }
 
-        public async Task<bool> AddCoupon(string cartId, string couponCode)
-        {
-            var cartExists = await this.ExistCart(cartId);
-
-            if (cartExists)
-            {
-                var coupon = await _couponRepository.ExistsCoupon(couponCode);
-
-                if (coupon.Success)
-                {
-                    await _couponRepository.ApplyCoupon(cartId, couponCode);
-
-                    return true;
-                }
-            }
-
-            return false;
 
 
-        }
-
-        //metodo não está sendo utilizado, pois estou tirando a dependencia da proc e crie o metoddo InsertOrUpdate com a lógica
-        public async Task<bool> AddProductCart(string CartId, int ProductId, int AmountInsert)
-        {
-
-            using (var context =  _context)
-            {
-                var cart = await ExistCart(CartId);
-
-                if (!cart)
-                {
-                    _notificationContext.AddNotification(404, "Carrinho não encontrado");
-                    return false;
-                }
-
-                //var query = "exec InsertOrUpdateCart \r\n@cartId = @CartId,\r\n@productId = @ProductId,\r\n@amountInsert = @AmountInsert";
-
-                _context.Begin();
-
-                var result = await context.connection.ExecuteAsync(@"InsertOrUpdateCart", new
-                {
-                    cartId = CartId,
-                    productId = ProductId,
-                    amountInsert = AmountInsert
-                }, transaction: _context.transaction,
-                commandType: CommandType.StoredProcedure);
-
-                _context.Commit();
-
-
-                if (result == -1) { 
-                _notificationContext.AddNotification(404, "Produto não encontrado");
-                return false;
-
-                }
-
-                return true;
-                }  
-            }
-
-        /// <summary>
-        ///  Verifica se o carrinho existe
-        /// </summary>
-        /// <param name="cartID"></param>
-        /// <returns> Retorna true caso exista, false caso não exista</returns>
+       
         public async Task<bool> ExistCart(string cartID)
         {
             using (var context = _context)
@@ -100,12 +34,15 @@ namespace WebApiBestBuy.Infra.Repositories
 
 
                 var exec = await context.connection.QueryAsync<Cart>(query, new { cartID } ,transaction: _context.transaction);
-               
 
-                if (!exec.IsNullOrEmpty())
+
+                if (!exec.IsNullOrEmpty()) {
                     return true;
+                }
+               
+                _notificationContext.AddNotification(404, "Carrinho inexistente");
 
-                   return false;
+                return false;
 
             }
         }
@@ -121,40 +58,20 @@ namespace WebApiBestBuy.Infra.Repositories
 
                 IEnumerable<ProductViewModel> productsInCart = await context.connection.QueryAsync<ProductViewModel>(query, new { CartId }, transaction: _context.transaction);
 
-                var existsCoupon = await _couponRepository.CartHaveCoupon(CartId);
-               
                 context.Dispose();
 
-                var controle = 0.0;
 
-               
-                foreach(ProductViewModel obj in productsInCart)
+                if (!productsInCart.Any())
                 {
-                        controle += obj.ValueTotal;
+                    _notificationContext.AddNotification(404, "Nenhum Produto encontrado no Carrinho!");
                 }
-
-               var teste = productsInCart.Sum(x => x.ValueTotal);
-                //verificar se é o mesmo resultado do foreach
-
-              )
-
-                if (existsCoupon.Success)
-                {
-                    controle -=existsCoupon.Data.DiscountAmount;
-
-                    if (controle < 0)
-                        controle = 0;
-                }
-
 
                 return new CartVM
                 {
-                    Products = productsInCart,
-                    DiscountAmount = existsCoupon.Data.DiscountAmount,
-                    CartPriceWithDiscount = controle 
+                    Products = productsInCart
+                 
                 };
 
-                
             }
         }
 
@@ -167,12 +84,13 @@ namespace WebApiBestBuy.Infra.Repositories
 
                    // var query = "exec RemoveOrDeleteCart \r\n@cartId = @CartId,\r\n@productId = @ProductId,\r\n@amountInsert = @AmountInsert";
 
-                    var result = await context.connection.ExecuteAsync(@"RemoveOrDeleteCart", new
+                    var result = await context.connection.ExecuteAsync(@"[BestBuy].[RemoveOrDeleteCart]", new
                     {
                         cartId = CartID,
                         productId = ProductId,
                         amountInsert = AmountInsert
-                    }, transaction: _context.transaction, commandType: CommandType.StoredProcedure);
+                    }, transaction: _context.transaction,
+                       commandType: CommandType.StoredProcedure);
 
 
                 context.Commit();
@@ -180,7 +98,7 @@ namespace WebApiBestBuy.Infra.Repositories
 
         
 
-                if (result == -1)
+                if (result == -100)
                     {
                         _notificationContext.AddNotification(404, "Produto não encontrado");
                         return false;
@@ -191,23 +109,10 @@ namespace WebApiBestBuy.Infra.Repositories
 
             }
         
-        /// <summary>
-        /// Método para inserir ou adicionar mais produtos ao carrinho
-        /// </summary>
-        /// <param name="CartId"></param>
-        /// <param name="ProductId"></param>
-        /// <param name="AmountInsert"></param>
-        /// <returns></returns>
+    
         public async Task InsertOrUpdate(string CartId, int ProductId, double AmountInsert)
         {
 
-            var exists = await _productRepository.GetProduct(ProductId);
-
-    
-            if (_notificationContext.HasNotifications())
-            {
-                return;
-            }
 
             using (var context = _context)
             {
@@ -228,8 +133,6 @@ namespace WebApiBestBuy.Infra.Repositories
                 await context.connection.ExecuteAsync(query, new {CartId, ProductId, AmountInsert }, transaction: _context.transaction);
                 
                 context.Commit();
-
-                _notificationContext.AddNotification(200, "Inserido com sucesso.");
 
                 return;
             }
