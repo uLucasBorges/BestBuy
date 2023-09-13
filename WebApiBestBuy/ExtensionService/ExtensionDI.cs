@@ -37,14 +37,6 @@ namespace WebApiBestBuy.Api.ExtensionServices
             Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             #endregion
 
-            var autoMapperConfig = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<UserAccount, IdentityUser>().ReverseMap();
-               
-            });
-
-            Services.AddSingleton(autoMapperConfig.CreateMapper());
-
             return Services;
         }
 

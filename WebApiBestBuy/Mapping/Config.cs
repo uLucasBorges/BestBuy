@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using WebApiBestBuy.Domain.Models;
 using WebApiBestBuy.Domain.ViewModel;
 
@@ -11,7 +12,8 @@ namespace WebApiBestBuy.DTOS
             var mappingConfig = new MapperConfiguration(config =>
             {
                 config.CreateMap<CategorieViewModel, Categorie>().ReverseMap();
-              
+                config.CreateMap<IdentityUser, UserAccount>().ReverseMap();
+
             });
 
             return mappingConfig;

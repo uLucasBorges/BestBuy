@@ -37,7 +37,7 @@ public class UserService : IUserService
     public async Task<Register> CreateAccount(UserAccount user)
     {
        
-        var mapped = _mapper.Map<UserAccount, IdentityUser>(user);
+        var mapped = _mapper.Map<IdentityUser>(user);
 
         var userExists = _userManager.Users.Where(x => x.UserName == mapped.UserName).FirstOrDefault();
 
