@@ -36,15 +36,15 @@ public class UserService : IUserService
     }
     public async Task<Register> CreateAccount(UserAccount user)
     {
-
-        var mapped = _mapper.Map<IdentityUser>(user);
+       
+        var mapped = _mapper.Map<UserAccount, IdentityUser>(user);
 
         var userExists = _userManager.Users.Where(x => x.UserName == mapped.UserName).FirstOrDefault();
 
 
         if (userExists == null)
         {
-            var result = await _userManager.CreateAsync(mapped, user.Password);
+            var result = await _userManager.CreateAsync(mapped, user.PasswordHash);
             if (result.Succeeded)
             {
                 await ValidationExistsRole();
@@ -82,7 +82,7 @@ public class UserService : IUserService
         if (userExists != null)
         {
             var result = await _signInManager.PasswordSignInAsync(userExists.UserName,
-             user.Password, isPersistent: false, lockoutOnFailure: false); ;
+             user.PasswordHash, isPersistent: false, lockoutOnFailure: false); ;
 
             if (!result.Succeeded)
 

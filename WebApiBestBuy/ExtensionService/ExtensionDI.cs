@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using WebApiBestBuy.Domain.Models;
 using WebApiBestBuy.Domain.Interfaces.Repositories;
 using WebApiBestBuy.Domain.Interfaces.Services;
+using WebApiBestBuy.DTOS;
 
 namespace WebApiBestBuy.Api.ExtensionServices
 {
@@ -28,7 +29,13 @@ namespace WebApiBestBuy.Api.ExtensionServices
             Services.AddScoped<ICartRepository, CartRepository>();
             Services.AddScoped<ICategorieRepository, CategorieRepository>();
             Services.AddScoped<ICouponRepository, CouponRepository>();
+            Services.AddScoped<IUserService, UserService>();
 
+            #region Mapper
+            IMapper mapper = Config.RegisterMaps().CreateMapper();
+            Services.AddSingleton(mapper);
+            Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            #endregion
 
             var autoMapperConfig = new MapperConfiguration(cfg =>
             {
