@@ -94,15 +94,23 @@ namespace WebApiBestBuy.Domain.Services
 
         public async Task<bool> RemoveProductCart(int productId, int quantity, string cartId)
         {
-            var product = await _productRepository.GetProduct(productId);
+            var carTSearched = await _cartRepository.ExistCart(cartId);
 
-            if (product.Success)
-            {
-                var carTSearched = await _cartRepository.ExistCart(cartId);
+            if (carTSearched) {
 
-                if (carTSearched)
-                return await _cartRepository.RemoveProductCart(productId, quantity, cartId);
+                var productsInCart = await _cartRepository.GetProductsByCart(cartId);
+
+                var SearchedProductinCart = productsInCart.Products.Where(X => X.Id == productId);
+
+                if (SearchedProductinCart.Any())
+                {
+                    await _cartRepository.RemoveProductCart(productId, quantity, cartId);
+                    return true;
+                }
+                
             }
+
+    
 
             return false;
                
